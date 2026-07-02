@@ -1,9 +1,10 @@
 import { create } from "zustand";
-import { getCompanies } from "@/api";
+import { getCompanies } from "@api";
 
 export const useCompanyStore = create((set) => ({
   companies: [],
   selectedCompany: null,
+
   isLoading: false,
   error: null,
 
@@ -11,10 +12,10 @@ export const useCompanyStore = create((set) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const response = await getCompanies();
+      const companies = await getCompanies();
 
       set({
-        companies: response.data,
+        companies,
         isLoading: false,
       });
     } catch (error) {
@@ -31,5 +32,9 @@ export const useCompanyStore = create((set) => ({
 
   clearSelectedCompany: () => {
     set({ selectedCompany: null });
+  },
+
+  clearError: () => {
+    set({ error: null });
   },
 }));
