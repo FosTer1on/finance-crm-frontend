@@ -19,6 +19,8 @@ import { useCompanyStore } from "@store/company/companyStore";
 import { formatMoney } from "@utils/formatMoney";
 import { useBankStore } from "@store/bank/bankStore";
 import IncomingTab from "@/features/company/tabs/IncomingTab";
+import CompanyAccountsCard from "@/components/company/CompanyAccountsCard";
+import CompanyHeader from "@/components/company/CompanyHeader";
 
 const { Title, Text } = Typography;
 
@@ -44,7 +46,7 @@ export default function CompanyPage() {
   useEffect(() => {
     loadCompanyById(id);
     loadAccounts(id);
-  
+
     return () => {
       clearAccounts();
     };
@@ -121,30 +123,11 @@ export default function CompanyPage() {
       key: "accounts",
       label: "Счета",
       children: (
-        <Card title="Банковские счета">
-          {isAccountsLoading ? (
-            <Spin />
-          ) : accounts.length === 0 ? (
-            <Empty description="Счета не найдены" />
-          ) : (
-            <Row gutter={[16, 16]}>
-              {accounts.map((account) => (
-                <Col xs={24} md={12} lg={8} key={account.id}>
-                  <Card size="small">
-                    <Space direction="vertical" size={4}>
-                      <Text strong>{account.bank_name}</Text>
-                      <Text>Название счёта: {account.account_name}</Text>
-                      <Text type="secondary">
-                        Номер счёта: {account.account_number || "Не указан"}
-                      </Text>
-                      <Text strong>{formatMoney(account.balance)}</Text>
-                    </Space>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          )}
-        </Card>
+        <CompanyAccountsCard
+          accounts={accounts}
+          totalBalance={totalBalance}
+          isLoading={isAccountsLoading}
+        />
       ),
     },
   ];
@@ -164,67 +147,7 @@ export default function CompanyPage() {
         />
       )}
 
-      <Card>
-        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-          <div>
-            <Title level={2} style={{ marginTop: 0, marginBottom: 8 }}>
-              {selectedCompany.name}
-            </Title>
-
-            <Tag
-              color={
-                selectedCompany.schema_type === "den_xan" ? "purple" : "blue"
-              }
-            >
-              {selectedCompany.schema_type}
-            </Tag>
-          </div>
-
-          <Descriptions bordered column={3}>
-            <Descriptions.Item label="ID">
-              {selectedCompany.id}
-            </Descriptions.Item>
-            <Descriptions.Item label="ИНН">
-              {selectedCompany.inn}
-            </Descriptions.Item>
-            <Descriptions.Item label="Активна">
-              {selectedCompany.is_active ? "Да" : "Нет"}
-            </Descriptions.Item>
-            <Descriptions.Item label="Общий баланс" span={3}>
-              <Space
-                direction="vertical"
-                size="small"
-                style={{ width: "100%" }}
-              >
-                <Text strong>{formatMoney(totalBalance)}</Text>
-
-                {accounts.length > 0 && (
-                  <Space
-                    direction="vertical"
-                    size="small"
-                    style={{ width: "100%" }}
-                  >
-                    {accounts.map((account) => (
-                      <Card size="small" key={account.id}>
-                        <Space direction="vertical" size={2}>
-                          <Text strong>{account.bank_name}</Text>
-                          <Text>Название счёта: {account.account_name}</Text>
-                          <Text type="secondary">
-                            Номер счёта: {account.account_number || "Не указан"}
-                          </Text>
-                          <Text strong>
-                            Баланс: {formatMoney(account.balance)}
-                          </Text>
-                        </Space>
-                      </Card>
-                    ))}
-                  </Space>
-                )}
-              </Space>
-            </Descriptions.Item>
-          </Descriptions>
-        </Space>
-      </Card>
+      <CompanyHeader company={selectedCompany} totalBalance={totalBalance} />
 
       <Tabs defaultActiveKey="incoming" items={tabItems} />
     </Space>

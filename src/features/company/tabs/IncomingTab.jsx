@@ -3,6 +3,8 @@ import { PlusOutlined } from "@ant-design/icons";
 import { formatMoney } from "@utils/formatMoney";
 import { useIncomingStore } from "@store/incoming/incomingStore";
 import { useEffect } from "react";
+import OperationSummaryCard from "@/components/finance/OperationSummaryCard";
+import StatusSelect from "@/components/finance/StatusSelect";
 
 const { Text } = Typography;
 
@@ -46,11 +48,8 @@ export default function IncomingTab({ company, onAfterStatusChange }) {
     title: "Статус",
     dataIndex: "status",
     render: (status, record) => (
-      <Select
-        size="small"
+      <StatusSelect
         value={status}
-        options={statusOptions}
-        style={{ width: 120 }}
         loading={isSubmitting}
         onChange={(value) => handleStatusChange(record, value)}
       />
@@ -113,15 +112,7 @@ export default function IncomingTab({ company, onAfterStatusChange }) {
         scroll={{ x: 1200 }}
       />
 
-      <Card size="small" style={{ marginTop: 16 }}>
-        <Space size="large" wrap>
-          <Text>Общая сумма: {formatMoney(summary.totalAmount)}</Text>
-          <Text>После %: {formatMoney(summary.totalAfterPercent)}</Text>
-          <Text>Всего: {summary.operationsCount}</Text>
-          <Text>Completed: {summary.completedCount}</Text>
-          <Text>Cancelled: {summary.cancelledCount}</Text>
-        </Space>
-      </Card>
+      <OperationSummaryCard summary={summary} />
     </Card>
   );
 }
