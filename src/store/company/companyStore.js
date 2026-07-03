@@ -1,10 +1,9 @@
 import { create } from "zustand";
-import { getCompanies } from "@api";
+import { getCompanies, getCompanyById } from "@api";
 
 export const useCompanyStore = create((set) => ({
   companies: [],
   selectedCompany: null,
-
   isLoading: false,
   error: null,
 
@@ -13,14 +12,24 @@ export const useCompanyStore = create((set) => ({
 
     try {
       const companies = await getCompanies();
-
-      set({
-        companies,
-        isLoading: false,
-      });
+      set({ companies, isLoading: false });
     } catch (error) {
       set({
         error: error?.response?.data || "Ошибка загрузки фирм",
+        isLoading: false,
+      });
+    }
+  },
+
+  loadCompanyById: async (id) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const company = await getCompanyById(id);
+      set({ selectedCompany: company, isLoading: false });
+    } catch (error) {
+      set({
+        error: error?.response?.data || "Ошибка загрузки фирмы",
         isLoading: false,
       });
     }
