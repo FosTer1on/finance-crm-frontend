@@ -18,6 +18,7 @@ import { ArrowLeftOutlined, PlusOutlined } from "@ant-design/icons";
 import { useCompanyStore } from "@store/company/companyStore";
 import { formatMoney } from "@utils/formatMoney";
 import { useBankStore } from "@store/bank/bankStore";
+import IncomingTab from "@/features/company/tabs/IncomingTab";
 
 const { Title, Text } = Typography;
 
@@ -43,7 +44,7 @@ export default function CompanyPage() {
   useEffect(() => {
     loadCompanyById(id);
     loadAccounts(id);
-
+  
     return () => {
       clearAccounts();
     };
@@ -73,16 +74,10 @@ export default function CompanyPage() {
       key: "incoming",
       label: "Приходы",
       children: (
-        <Card
-          title="Приходы"
-          extra={
-            <Button type="primary" icon={<PlusOutlined />}>
-              Добавить приход
-            </Button>
-          }
-        >
-          Пока пусто
-        </Card>
+        <IncomingTab
+          company={selectedCompany}
+          onAfterStatusChange={() => loadAccounts(id)}
+        />
       ),
     },
     {
