@@ -22,6 +22,7 @@ import IncomingTab from "@/features/company/tabs/IncomingTab";
 import CompanyAccountsCard from "@/components/company/CompanyAccountsCard";
 import CompanyHeader from "@/components/company/CompanyHeader";
 import OutgoingTab from "@/features/company/tabs/OutgoingTab";
+import ExpenseTab from "@/features/company/tabs/ExpenseTab";
 
 const { Title, Text } = Typography;
 
@@ -97,16 +98,10 @@ export default function CompanyPage() {
       key: "expenses",
       label: "Прочие расходы",
       children: (
-        <Card
-          title="Прочие расходы"
-          extra={
-            <Button type="primary" icon={<PlusOutlined />}>
-              Добавить расход
-            </Button>
-          }
-        >
-          Пока пусто
-        </Card>
+        <ExpenseTab
+          company={selectedCompany}
+          onAfterStatusChange={() => loadAccounts(id)}
+        />
       ),
     },
     {
