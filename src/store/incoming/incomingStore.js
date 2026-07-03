@@ -4,34 +4,16 @@ import {
   createIncomingTransaction,
   getIncomingTransactions,
 } from "@api";
-
-const calculateSummary = (transactions) => {
-  const completed = transactions.filter((item) => item.status === "completed");
-  const cancelled = transactions.filter((item) => item.status === "cancelled");
-
-  return {
-    totalAmount: completed.reduce(
-      (sum, item) => sum + Number(item.amount || 0),
-      0
-    ),
-    totalAfterPercent: completed.reduce(
-      (sum, item) => sum + Number(item.amount_after_percent || 0),
-      0
-    ),
-    operationsCount: transactions.length,
-    completedCount: completed.length,
-    cancelledCount: cancelled.length,
-  };
-};
+import { getApiError } from "@store/core/apiError";
+import { calculateOperationSummary } from "@store/core/transactionSummary";
 
 export const useIncomingStore = create((set, get) => ({
   transactions: [],
-  summary: calculateSummary([]),
+  summary: calculateOperationSummary([]),
 
   isLoading: false,
   isSubmitting: false,
   error: null,
-
   filters: {},
 
   loadIncoming: async (params = {}) => {
@@ -42,12 +24,12 @@ export const useIncomingStore = create((set, get) => ({
 
       set({
         transactions,
-        summary: calculateSummary(transactions),
+        summary: calculateOperationSummary(transactions),
         isLoading: false,
       });
     } catch (error) {
       set({
-        error: error?.response?.data || "Ошибка загрузки приходов",
+        error: getApiError(error, "Ошибка загрузки приходов"),
         isLoading: false,
       });
     }
@@ -65,7 +47,7 @@ export const useIncomingStore = create((set, get) => ({
       set({ isSubmitting: false });
     } catch (error) {
       set({
-        error: error?.response?.data || "Ошибка создания прихода",
+        error: getApiError(error, "Ошибка создания прихода"),
         isSubmitting: false,
       });
 
@@ -85,7 +67,7 @@ export const useIncomingStore = create((set, get) => ({
       set({ isSubmitting: false });
     } catch (error) {
       set({
-        error: error?.response?.data || "Ошибка смены статуса",
+        error: getApiError(error, "Ошибка смены статуса"),
         isSubmitting: false,
       });
 
@@ -96,7 +78,7 @@ export const useIncomingStore = create((set, get) => ({
   clearIncoming: () => {
     set({
       transactions: [],
-      summary: calculateSummary([]),
+      summary: calculateOperationSummary([]),
       filters: {},
       error: null,
       isLoading: false,

@@ -21,6 +21,7 @@ import { useBankStore } from "@store/bank/bankStore";
 import IncomingTab from "@/features/company/tabs/IncomingTab";
 import CompanyAccountsCard from "@/components/company/CompanyAccountsCard";
 import CompanyHeader from "@/components/company/CompanyHeader";
+import OutgoingTab from "@/features/company/tabs/OutgoingTab";
 
 const { Title, Text } = Typography;
 
@@ -86,16 +87,10 @@ export default function CompanyPage() {
       key: "outgoing",
       label: "Исходящие",
       children: (
-        <Card
-          title="Исходящие"
-          extra={
-            <Button type="primary" icon={<PlusOutlined />}>
-              Добавить исходящий
-            </Button>
-          }
-        >
-          Пока пусто
-        </Card>
+        <OutgoingTab
+          company={selectedCompany}
+          onAfterStatusChange={() => loadAccounts(id)}
+        />
       ),
     },
     {
