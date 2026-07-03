@@ -1,17 +1,10 @@
-import { Button, Card, Select, Space, Table, Typography } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import { formatMoney } from "@utils/formatMoney";
 import { useIncomingStore } from "@store/incoming/incomingStore";
 import { useEffect } from "react";
+import StatusSelect from "@components/finance/StatusSelect";
 import OperationSummaryCard from "@/components/finance/OperationSummaryCard";
-import StatusSelect from "@/components/finance/StatusSelect";
-
-const { Text } = Typography;
-
-const statusOptions = [
-  { value: "completed", label: "Выполнено" },
-  { value: "cancelled", label: "Отменено" },
-];
+import OperationTable from "@/components/finance/OperationTable";
+import TransactionCard from "@/components/finance/TransactionCard";
+import { getIncomingColumns } from "./incoming/incomingColumns";
 
 export default function IncomingTab({ company, onAfterStatusChange }) {
   const {
@@ -44,75 +37,29 @@ export default function IncomingTab({ company, onAfterStatusChange }) {
     }
   };
 
-  const statusColumn = {
-    title: "Статус",
-    dataIndex: "status",
-    render: (status, record) => (
-      <StatusSelect
-        value={status}
-        loading={isSubmitting}
-        onChange={(value) => handleStatusChange(record, value)}
-      />
-    ),
-  };
+  const renderStatus = (status, record) => (
+    <StatusSelect
+      value={status}
+      loading={isSubmitting}
+      onChange={(value) => handleStatusChange(record, value)}
+    />
+  );
 
-  const standardColumns = [
-    { title: "№", render: (_, __, index) => index + 1 },
-    { title: "Фирма", dataIndex: "counterparty_name" },
-    { title: "ИНН", dataIndex: "counterparty_inn" },
-    { title: "Контакты", dataIndex: "counterparty_contacts" },
-    { title: "Человек", dataIndex: "person_name" },
-    { title: "Сумма", dataIndex: "amount", render: formatMoney },
-    { title: "%", dataIndex: "service_percent" },
-    {
-      title: "После %",
-      dataIndex: "amount_after_percent",
-      render: formatMoney,
-    },
-    { title: "Дата", dataIndex: "transaction_date" },
-    statusColumn,
-    { title: "Комментарий", dataIndex: "comment" },
-  ];
-
-  const denXanColumns = [
-    { title: "№", render: (_, __, index) => index + 1 },
-    { title: "Дистрибьютор", dataIndex: "distributor_name" },
-    { title: "Общая сумма", dataIndex: "amount", render: formatMoney },
-    { title: "%", dataIndex: "service_percent" },
-    { title: "Прибыль", dataIndex: "profit_amount", render: formatMoney },
-    { title: "MTG", dataIndex: "mtg_amount", render: formatMoney },
-    {
-      title: "DEN XAN GROUP",
-      dataIndex: "company_amount",
-      render: formatMoney,
-    },
-    { title: "Дата", dataIndex: "transaction_date" },
-    statusColumn,
-    { title: "Комментарий", dataIndex: "comment" },
-  ];
-
-  const columns =
-    company?.schema_type === "den_xan" ? denXanColumns : standardColumns;
+  const columns = getIncomingColumns({
+    company,
+    renderStatus,
+  });
 
   return (
-    <Card
-      title="Приходы"
-      extra={
-        <Button type="primary" icon={<PlusOutlined />}>
-          Добавить приход
-        </Button>
-      }
-    >
-      <Table
+    <TransactionCard title="Приходы" buttonText="Добавить приход">
+      <OperationTable
         columns={columns}
         dataSource={transactions}
-        rowKey="id"
         loading={isLoading || isSubmitting}
-        pagination={false}
-        scroll={{ x: 1200 }}
+        scrollX={1400}
       />
 
       <OperationSummaryCard summary={summary} />
-    </Card>
+    </TransactionCard>
   );
 }
