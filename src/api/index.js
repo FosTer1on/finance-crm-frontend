@@ -7,3 +7,4 @@ export * from "./adjustments";
 export * from "./reports";
 export * from "./distributors";
 export * from "./partners";
+export * from "./denXan";
