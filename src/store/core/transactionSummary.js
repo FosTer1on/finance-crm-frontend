@@ -25,6 +25,16 @@ export const calculateOperationSummary = (items = {}) => {
         (sum, item) => sum + Number(item.company_amount || 0),
         0
       ),
+      totalNetAmount: completed.reduce(
+        (sum, item) =>
+          sum +
+          (
+            Number(item.amount || 0) -
+            Number(item.mtg_amount || 0) -
+            Number(item.profit_amount || 0)
+          ),
+        0
+      ),
       operationsCount: list.length,
       completedCount: completed.length,
       cancelledCount: cancelled.length,

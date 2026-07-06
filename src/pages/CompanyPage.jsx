@@ -91,6 +91,7 @@ export default function CompanyPage() {
       children: (
         <OutgoingTab
           company={selectedCompany}
+          accounts={accounts}
           onAfterStatusChange={() => loadAccounts(id)}
         />
       ),
