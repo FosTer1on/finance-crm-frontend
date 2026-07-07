@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createPartner, getPartners } from "@api";
 import { getApiError } from "@store/core/apiError";
+import { updatePartner } from "@/api";
 
 export const usePartnerStore = create((set, get) => ({
   partners: [],
@@ -39,6 +40,29 @@ export const usePartnerStore = create((set, get) => ({
     } catch (error) {
       set({
         error: getApiError(error, "Ошибка создания фирмы исхода"),
+        isSubmitting: false,
+      });
+      throw error;
+    }
+  },
+
+  updatePartner: async (id, payload) => {
+    set({ isSubmitting: true, error: null });
+  
+    try {
+      const partner = await updatePartner(id, payload);
+  
+      set({
+        partners: get().partners.map((item) =>
+          item.id === partner.id ? partner : item
+        ),
+        isSubmitting: false,
+      });
+  
+      return partner;
+    } catch (error) {
+      set({
+        error: getApiError(error, "Ошибка обновления фирмы исхода"),
         isSubmitting: false,
       });
       throw error;

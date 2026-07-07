@@ -18,6 +18,7 @@ import CommentModal from "./modals/CommentModal";
 import AddIncomingModal from "./modals/AddIncomingModal";
 import { usePartnerStore } from "@/store/partner/partnerStore";
 import CreatePartnerModal from "./modals/CreatePartnerModal";
+import PartnerInfoModal from "./modals/PartnerInfoModal";
 
 const { Text } = Typography;
 
@@ -28,6 +29,7 @@ export default function DenXanPage({ company, onAfterChange }) {
   const [commentModal, setCommentModal] = useState(null);
   const [addModal, setAddModal] = useState(null);
   const [partnerModal, setPartnerModal] = useState(null);
+  const [partnerInfoModal, setPartnerInfoModal] = useState(null);
 
   const {
     date,
@@ -49,6 +51,7 @@ export default function DenXanPage({ company, onAfterChange }) {
     loadPartners,
     clearPartners,
     createPartner,
+    updatePartner,
     isSubmitting: isPartnerSubmitting,
   } = usePartnerStore();
 
@@ -161,6 +164,25 @@ export default function DenXanPage({ company, onAfterChange }) {
     }
   };
 
+  const handleUpdatePartner = async () => {
+    if (!partnerInfoModal?.id) return;
+
+    if (!partnerInfoModal.name?.trim()) {
+      message.error("Введите название фирмы");
+      return;
+    }
+
+    await updatePartner(partnerInfoModal.id, {
+      name: partnerInfoModal.name,
+      inn: partnerInfoModal.inn || "",
+      contacts: partnerInfoModal.contacts || "",
+      comment: partnerInfoModal.comment || "",
+    });
+
+    setPartnerInfoModal(null);
+    message.success("Фирма исхода обновлена");
+  };
+
   const handleCreatePartner = async () => {
     if (!partnerModal?.name?.trim()) {
       message.error("Введите название фирмы");
@@ -237,6 +259,22 @@ export default function DenXanPage({ company, onAfterChange }) {
           }
           onSaveIncoming={handleSaveIncoming}
           onSaveOutgoing={handleSaveOutgoing}
+          onPartnerInfo={(partnerId) => {
+            const partner = partners.find((item) => item.id === partnerId);
+
+            if (!partner) {
+              message.error("Выберите фирму исхода");
+              return;
+            }
+
+            setPartnerInfoModal({
+              id: partner.id,
+              name: partner.name || "",
+              inn: partner.inn || "",
+              contacts: partner.contacts || "",
+              comment: partner.comment || "",
+            });
+          }}
           onCreatePartner={() =>
             setPartnerModal({
               name: "",
@@ -276,6 +314,27 @@ export default function DenXanPage({ company, onAfterChange }) {
           }))
         }
         onSave={handleAddIncoming}
+      />
+
+      <PartnerInfoModal
+        open={Boolean(partnerInfoModal)}
+        form={
+          partnerInfoModal || {
+            name: "",
+            inn: "",
+            contacts: "",
+            comment: "",
+          }
+        }
+        loading={isPartnerSubmitting}
+        onCancel={() => setPartnerInfoModal(null)}
+        onChange={(field, value) =>
+          setPartnerInfoModal((prev) => ({
+            ...prev,
+            [field]: value,
+          }))
+        }
+        onSave={handleUpdatePartner}
       />
 
       <CreatePartnerModal

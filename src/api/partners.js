@@ -10,3 +10,8 @@ export const createPartner = async (payload) => {
   const { data } = await apiClient.post(ENDPOINTS.partners, payload);
   return data;
 };
+
+export const updatePartner = async (id, payload) => {
+  const { data } = await apiClient.patch(`${ENDPOINTS.partners}${id}/`, payload);
+  return data;
+};

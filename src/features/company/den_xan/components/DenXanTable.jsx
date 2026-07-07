@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Button, InputNumber, Select, Space, Table } from "antd";
-import { EditOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
+import { EditOutlined, PlusOutlined, SaveOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 
 import { formatMoney } from "@/utils/formatMoney";
 import { moneyFormatter, moneyParser } from "../utils/numberInput";
@@ -19,6 +19,8 @@ export default function DenXanTable({
 
   onSaveIncoming,
   onSaveOutgoing,
+
+  onPartnerInfo,
   onCreatePartner,
 }) {
   const columns = useMemo(
@@ -171,9 +173,17 @@ export default function DenXanTable({
 
       {
         title: "Фирма исхода",
-        width: 250,
+        width: 300,
         render: (_, row) => (
           <Space>
+            <Button
+              size="small"
+              icon={<ExclamationCircleOutlined />}
+              onClick={() =>
+                onPartnerInfo(drafts[row.id]?.outgoing_partner_id)
+              }
+            />
+            
             <Select
               style={{ width: 190 }}
               placeholder="Выберите фирму"
@@ -186,7 +196,7 @@ export default function DenXanTable({
                 updateDraft(row.id, "outgoing_partner_id", value)
               }
             />
-
+      
             <Button
               size="small"
               icon={<EditOutlined />}
