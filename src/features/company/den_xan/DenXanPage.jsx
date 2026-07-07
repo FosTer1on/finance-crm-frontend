@@ -9,6 +9,7 @@ import {
   message,
 } from "antd";
 import dayjs from "dayjs";
+import "dayjs/locale/ru";
 
 import { useDenXanStore } from "@/store/denXan/denXanStore";
 
@@ -19,6 +20,8 @@ import AddIncomingModal from "./modals/AddIncomingModal";
 import { usePartnerStore } from "@/store/partner/partnerStore";
 import CreatePartnerModal from "./modals/CreatePartnerModal";
 import PartnerInfoModal from "./modals/PartnerInfoModal";
+
+dayjs.locale("ru");
 
 const { Text } = Typography;
 

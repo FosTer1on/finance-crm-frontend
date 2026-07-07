@@ -1,6 +1,11 @@
 import { useMemo } from "react";
 import { Button, InputNumber, Select, Space, Table } from "antd";
-import { EditOutlined, PlusOutlined, SaveOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  PlusOutlined,
+  SaveOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 
 import { formatMoney } from "@/utils/formatMoney";
 import { moneyFormatter, moneyParser } from "../utils/numberInput";
@@ -118,10 +123,12 @@ export default function DenXanTable({
         render: (_, row) => (
           <Button
             type="primary"
-            icon={<SaveOutlined />}
+            // icon={<SaveOutlined />}
             loading={isSubmitting}
             onClick={() => onSaveIncoming(row)}
-          />
+          >
+            Сохранить
+          </Button>
         ),
       },
 
@@ -179,11 +186,9 @@ export default function DenXanTable({
             <Button
               size="small"
               icon={<ExclamationCircleOutlined />}
-              onClick={() =>
-                onPartnerInfo(drafts[row.id]?.outgoing_partner_id)
-              }
+              onClick={() => onPartnerInfo(drafts[row.id]?.outgoing_partner_id)}
             />
-            
+
             <Select
               style={{ width: 190 }}
               placeholder="Выберите фирму"
@@ -196,7 +201,7 @@ export default function DenXanTable({
                 updateDraft(row.id, "outgoing_partner_id", value)
               }
             />
-      
+
             <Button
               size="small"
               icon={<EditOutlined />}
@@ -213,10 +218,12 @@ export default function DenXanTable({
         render: (_, row) => (
           <Button
             type="primary"
-            icon={<SaveOutlined />}
+            // icon={<SaveOutlined />}
             loading={isSubmitting}
-            onClick={() => onSaveOutgoing(row)}
-          />
+            onClick={() => onSaveIncoming(row)}
+          >
+            Сохранить
+          </Button>
         ),
       },
     ],
