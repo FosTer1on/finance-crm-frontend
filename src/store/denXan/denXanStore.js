@@ -8,6 +8,34 @@ import {
   saveDenXanOutgoingComment,
 } from "@api";
 
+const toNumber = (value) => Number(value || 0);
+
+const calculateSummary = (rows) => {
+  const summary = rows.reduce(
+    (acc, row) => {
+      acc.profit += toNumber(row.profit_amount);
+      acc.mtg += toNumber(row.mtg_amount);
+      acc.to_den_xan_account += toNumber(row.amount_to_account);
+      acc.outgoing_total += toNumber(row.outgoing_amount);
+      acc.need_to_give +=
+        toNumber(row.total_amount) -
+        toNumber(row.profit_amount) -
+        toNumber(row.mtg_amount);
+
+      return acc;
+    },
+    {
+      profit: 0,
+      mtg: 0,
+      to_den_xan_account: 0,
+      outgoing_total: 0,
+      need_to_give: 0,
+    }
+  );
+
+  return summary;
+};
+
 export const useDenXanStore = create((set, get) => ({
   date: null,
   rows: [],
@@ -42,7 +70,10 @@ export const useDenXanStore = create((set, get) => ({
       row.id === updatedRow.id ? updatedRow : row
     );
 
-    set({ rows });
+    set({
+      rows,
+      summary: calculateSummary(rows),
+    });
   },
 
   saveIncoming: async (rowId, payload) => {

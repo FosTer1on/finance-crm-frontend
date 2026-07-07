@@ -13,11 +13,7 @@ import {
   Typography,
   message,
 } from "antd";
-import {
-  EditOutlined,
-  PlusOutlined,
-  SaveOutlined,
-} from "@ant-design/icons";
+import { EditOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
 import { useDenXanStore } from "@/store/denXan/denXanStore";
@@ -177,9 +173,7 @@ export default function DenXanPage({ company, onAfterChange }) {
                 `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
               }
               parser={(value) => value?.replace(/\s/g, "") || "0"}
-              onChange={(value) =>
-                updateDraft(row.id, "total_amount", value)
-              }
+              onChange={(value) => updateDraft(row.id, "total_amount", value)}
             />
 
             <Button
@@ -388,45 +382,63 @@ export default function DenXanPage({ company, onAfterChange }) {
         onOk={handleAddIncoming}
         confirmLoading={isSubmitting}
       >
-        <Space direction="vertical" style={{ width: "100%" }}>
-          <Text>
-            Текущая сумма:{" "}
-            <b>{addModal ? formatMoney(addModal.row.total_amount) : "0 сум"}</b>
-          </Text>
+        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+          <Card size="small">
+            <Space direction="vertical" size={4}>
+              <Text type="secondary">Дистрибьютор</Text>
+              <Text strong>{addModal?.row?.distributor_name}</Text>
 
-          <InputNumber
-            min={0}
-            style={{ width: "100%" }}
-            placeholder="Добавить сумму"
-            value={addModal?.add_amount}
-            formatter={(value) =>
-              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
-            }
-            parser={(value) => value?.replace(/\s/g, "") || "0"}
-            onChange={(value) =>
-              setAddModal((prev) => ({
-                ...prev,
-                add_amount: value,
-              }))
-            }
-          />
+              <Text type="secondary">Текущая общая сумма</Text>
+              <Text strong>
+                {addModal ? formatMoney(addModal.row.total_amount) : "0 сум"}
+              </Text>
 
-          <InputNumber
-            min={0}
-            style={{ width: "100%" }}
-            placeholder="Добавить MTG"
-            value={addModal?.add_mtg_amount}
-            formatter={(value) =>
-              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
-            }
-            parser={(value) => value?.replace(/\s/g, "") || "0"}
-            onChange={(value) =>
-              setAddModal((prev) => ({
-                ...prev,
-                add_mtg_amount: value,
-              }))
-            }
-          />
+              <Text type="secondary">Текущий MTG</Text>
+              <Text strong>
+                {addModal ? formatMoney(addModal.row.mtg_amount) : "0 сум"}
+              </Text>
+            </Space>
+          </Card>
+
+          <div>
+            <Text strong>Сумма нового поступления</Text>
+            <InputNumber
+              min={0}
+              style={{ width: "100%", marginTop: 6 }}
+              placeholder="Например: 20 000 000"
+              value={addModal?.add_amount}
+              formatter={(value) =>
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
+              }
+              parser={(value) => value?.replace(/\s/g, "") || "0"}
+              onChange={(value) =>
+                setAddModal((prev) => ({
+                  ...prev,
+                  add_amount: value,
+                }))
+              }
+            />
+          </div>
+
+          <div>
+            <Text strong>Дополнительный MTG</Text>
+            <InputNumber
+              min={0}
+              style={{ width: "100%", marginTop: 6 }}
+              placeholder="Если MTG нет — оставьте 0"
+              value={addModal?.add_mtg_amount}
+              formatter={(value) =>
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
+              }
+              parser={(value) => value?.replace(/\s/g, "") || "0"}
+              onChange={(value) =>
+                setAddModal((prev) => ({
+                  ...prev,
+                  add_mtg_amount: value,
+                }))
+              }
+            />
+          </div>
         </Space>
       </Modal>
     </Space>
