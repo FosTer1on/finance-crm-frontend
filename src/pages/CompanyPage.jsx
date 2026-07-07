@@ -24,6 +24,7 @@ import CompanyHeader from "@/components/company/CompanyHeader";
 import OutgoingTab from "@/features/company/tabs/OutgoingTab";
 import ExpenseTab from "@/features/company/tabs/ExpenseTab";
 import DenXanPage from "@/features/company/den_xan/DenXanPage";
+import CompanyBottomTabs from "@/components/company/CompanyBottomTabs";
 
 const { Title, Text } = Typography;
 
@@ -76,27 +77,30 @@ export default function CompanyPage() {
 
   if (selectedCompany.schema_type === "den_xan") {
     return (
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        <Link to="/">
-          <Button icon={<ArrowLeftOutlined />}>Назад к фирмам</Button>
-        </Link>
-
-        {accountsError && (
-          <Alert
-            type="error"
-            message="Ошибка счетов"
-            description={String(accountsError)}
-            showIcon
+      <>
+        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+          <Link to="/">
+            <Button icon={<ArrowLeftOutlined />}>Назад к фирмам</Button>
+          </Link>
+  
+          {accountsError && (
+            <Alert
+              type="error"
+              message="Ошибка счетов"
+              description={String(accountsError)}
+              showIcon
+            />
+          )}
+  
+          <CompanyHeader company={selectedCompany} totalBalance={totalBalance} />
+  
+          <DenXanPage
+            company={selectedCompany}
+            onAfterChange={() => loadAccounts(id)}
           />
-        )}
-
-        <CompanyHeader company={selectedCompany} totalBalance={totalBalance} />
-
-        <DenXanPage
-          company={selectedCompany}
-          onAfterChange={() => loadAccounts(id)}
-        />
-      </Space>
+        </Space>
+        <CompanyBottomTabs />
+      </>
     );
   }
 
@@ -169,6 +173,8 @@ export default function CompanyPage() {
       <CompanyHeader company={selectedCompany} totalBalance={totalBalance} />
 
       <Tabs defaultActiveKey="incoming" items={tabItems} />
+
+      <CompanyBottomTabs />
     </Space>
   );
 }
