@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Button, InputNumber, Space, Table } from "antd";
+import { Button, InputNumber, Select, Space, Table } from "antd";
 import { EditOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
 
 import { formatMoney } from "@/utils/formatMoney";
@@ -8,6 +8,7 @@ import { moneyFormatter, moneyParser } from "../utils/numberInput";
 export default function DenXanTable({
   rows,
   drafts,
+  partners = [],
   isSubmitting,
 
   updateDraft,
@@ -18,6 +19,7 @@ export default function DenXanTable({
 
   onSaveIncoming,
   onSaveOutgoing,
+  onCreatePartner,
 }) {
   const columns = useMemo(
     () => [
@@ -156,9 +158,7 @@ export default function DenXanTable({
             max={100}
             style={{ width: 80 }}
             value={drafts[row.id]?.outgoing_percent}
-            onChange={(value) =>
-              updateDraft(row.id, "outgoing_percent", value)
-            }
+            onChange={(value) => updateDraft(row.id, "outgoing_percent", value)}
           />
         ),
       },
@@ -171,8 +171,29 @@ export default function DenXanTable({
 
       {
         title: "Фирма исхода",
-        dataIndex: "outgoing_company_name",
-        width: 170,
+        width: 250,
+        render: (_, row) => (
+          <Space>
+            <Select
+              style={{ width: 190 }}
+              placeholder="Выберите фирму"
+              value={drafts[row.id]?.outgoing_partner_id || undefined}
+              options={partners.map((partner) => ({
+                value: partner.id,
+                label: partner.name,
+              }))}
+              onChange={(value) =>
+                updateDraft(row.id, "outgoing_partner_id", value)
+              }
+            />
+
+            <Button
+              size="small"
+              icon={<EditOutlined />}
+              onClick={onCreatePartner}
+            />
+          </Space>
+        ),
       },
 
       {

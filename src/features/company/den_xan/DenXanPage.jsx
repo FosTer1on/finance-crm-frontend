@@ -16,6 +16,8 @@ import DenXanTable from "./components/DenXanTable";
 import DenXanSummary from "./components/DenXanSummary";
 import CommentModal from "./modals/CommentModal";
 import AddIncomingModal from "./modals/AddIncomingModal";
+import { usePartnerStore } from "@/store/partner/partnerStore";
+import CreatePartnerModal from "./modals/CreatePartnerModal";
 
 const { Text } = Typography;
 
@@ -25,6 +27,7 @@ export default function DenXanPage({ company, onAfterChange }) {
   const [drafts, setDrafts] = useState({});
   const [commentModal, setCommentModal] = useState(null);
   const [addModal, setAddModal] = useState(null);
+  const [partnerModal, setPartnerModal] = useState(null);
 
   const {
     date,
@@ -41,6 +44,14 @@ export default function DenXanPage({ company, onAfterChange }) {
     saveOutgoingComment,
   } = useDenXanStore();
 
+  const {
+    partners,
+    loadPartners,
+    clearPartners,
+    createPartner,
+    isSubmitting: isPartnerSubmitting,
+  } = usePartnerStore();
+
   const dateValue = selectedDate.format("YYYY-MM-DD");
 
   useEffect(() => {
@@ -50,10 +61,20 @@ export default function DenXanPage({ company, onAfterChange }) {
       company: company.id,
       date: dateValue,
     });
-  }, [company?.id, dateValue, loadDaily]);
+
+    loadPartners(company.id);
+
+    return () => {
+      clearPartners();
+    };
+  }, [company?.id, dateValue, loadDaily, loadPartners, clearPartners]);
 
   useEffect(() => {
     const nextDrafts = {};
+
+    const defaultPartner = partners.find(
+      (partner) => partner.name?.toLowerCase() === "mma grade plast"
+    );
 
     rows.forEach((row) => {
       nextDrafts[row.id] = {
@@ -62,11 +83,12 @@ export default function DenXanPage({ company, onAfterChange }) {
         mtg_amount: row.mtg_amount,
         outgoing_amount: row.outgoing_amount,
         outgoing_percent: row.outgoing_percent,
+        outgoing_partner_id: row.outgoing_partner || defaultPartner?.id || null,
       };
     });
 
     setDrafts(nextDrafts);
-  }, [rows]);
+  }, [rows, partners]);
 
   const updateDraft = (rowId, field, value) => {
     setDrafts((prev) => ({
@@ -100,7 +122,7 @@ export default function DenXanPage({ company, onAfterChange }) {
     await saveOutgoing(row.id, {
       outgoing_amount: draft?.outgoing_amount || "0",
       outgoing_percent: draft?.outgoing_percent || "9.00",
-      outgoing_partner_id: row.outgoing_partner || null,
+      outgoing_partner_id: draft?.outgoing_partner_id || null,
     });
 
     message.success("Исход сохранён");
@@ -139,6 +161,26 @@ export default function DenXanPage({ company, onAfterChange }) {
     }
   };
 
+  const handleCreatePartner = async () => {
+    if (!partnerModal?.name?.trim()) {
+      message.error("Введите название фирмы");
+      return;
+    }
+
+    const partner = await createPartner({
+      from_company_id: company.id,
+      name: partnerModal.name,
+      service_percent: partnerModal.service_percent || "9.00",
+      inn: partnerModal.inn || "",
+      comment: partnerModal.comment || "",
+    });
+
+    setPartnerModal(null);
+    message.success("Фирма исхода создана");
+
+    return partner;
+  };
+
   if (isLoading) {
     return <Spin />;
   }
@@ -169,6 +211,7 @@ export default function DenXanPage({ company, onAfterChange }) {
         <DenXanTable
           rows={rows}
           drafts={drafts}
+          partners={partners}
           isSubmitting={isSubmitting}
           updateDraft={updateDraft}
           onAdd={(row) =>
@@ -194,6 +237,14 @@ export default function DenXanPage({ company, onAfterChange }) {
           }
           onSaveIncoming={handleSaveIncoming}
           onSaveOutgoing={handleSaveOutgoing}
+          onCreatePartner={() =>
+            setPartnerModal({
+              name: "",
+              service_percent: "9.00",
+              inn: "",
+              comment: "",
+            })
+          }
         />
 
         <DenXanSummary summary={summary} />
@@ -225,6 +276,27 @@ export default function DenXanPage({ company, onAfterChange }) {
           }))
         }
         onSave={handleAddIncoming}
+      />
+
+      <CreatePartnerModal
+        open={Boolean(partnerModal)}
+        form={
+          partnerModal || {
+            name: "",
+            service_percent: "9.00",
+            inn: "",
+            comment: "",
+          }
+        }
+        loading={isPartnerSubmitting}
+        onCancel={() => setPartnerModal(null)}
+        onChange={(field, value) =>
+          setPartnerModal((prev) => ({
+            ...prev,
+            [field]: value,
+          }))
+        }
+        onSave={handleCreatePartner}
       />
     </Space>
   );
