@@ -170,7 +170,7 @@ export default function DenXanPage({ company, onAfterChange }) {
     const partner = await createPartner({
       from_company_id: company.id,
       name: partnerModal.name,
-      service_percent: partnerModal.service_percent || "9.00",
+      service_percent: null,
       inn: partnerModal.inn || "",
       comment: partnerModal.comment || "",
     });
@@ -283,7 +283,6 @@ export default function DenXanPage({ company, onAfterChange }) {
         form={
           partnerModal || {
             name: "",
-            service_percent: "9.00",
             inn: "",
             comment: "",
           }

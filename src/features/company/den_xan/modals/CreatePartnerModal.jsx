@@ -1,4 +1,4 @@
-import { Input, InputNumber, Modal, Space, Typography } from "antd";
+import { Input, Modal, Space, Typography } from "antd";
 
 const { Text } = Typography;
 
@@ -28,17 +28,6 @@ export default function CreatePartnerModal({
             placeholder="Например: MMA GROUP"
             value={form.name}
             onChange={(event) => onChange("name", event.target.value)}
-          />
-        </div>
-
-        <div>
-          <Text strong>Процент</Text>
-          <InputNumber
-            min={0}
-            max={100}
-            style={{ width: "100%", marginTop: 6 }}
-            value={form.service_percent}
-            onChange={(value) => onChange("service_percent", value)}
           />
         </div>
 
