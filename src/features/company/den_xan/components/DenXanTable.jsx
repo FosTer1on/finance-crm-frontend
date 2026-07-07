@@ -1,21 +1,9 @@
 import { useMemo } from "react";
-import {
-  Button,
-  InputNumber,
-  Space,
-  Table,
-} from "antd";
-import {
-  EditOutlined,
-  PlusOutlined,
-  SaveOutlined,
-} from "@ant-design/icons";
+import { Button, InputNumber, Space, Table } from "antd";
+import { EditOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
 
 import { formatMoney } from "@/utils/formatMoney";
-import {
-  moneyFormatter,
-  moneyParser,
-} from "../utils/numberInput";
+import { moneyFormatter, moneyParser } from "../utils/numberInput";
 
 export default function DenXanTable({
   rows,
@@ -63,9 +51,7 @@ export default function DenXanTable({
               value={drafts[row.id]?.total_amount}
               formatter={moneyFormatter}
               parser={moneyParser}
-              onChange={(value) =>
-                updateDraft(row.id, "total_amount", value)
-              }
+              onChange={(value) => updateDraft(row.id, "total_amount", value)}
             />
 
             <Button
@@ -79,8 +65,16 @@ export default function DenXanTable({
 
       {
         title: "%",
-        dataIndex: "service_percent",
-        width: 70,
+        width: 90,
+        render: (_, row) => (
+          <InputNumber
+            min={0}
+            max={100}
+            style={{ width: 70 }}
+            value={drafts[row.id]?.service_percent}
+            onChange={(value) => updateDraft(row.id, "service_percent", value)}
+          />
+        ),
       },
 
       {
@@ -101,9 +95,7 @@ export default function DenXanTable({
             value={drafts[row.id]?.mtg_amount}
             formatter={moneyFormatter}
             parser={moneyParser}
-            onChange={(value) =>
-              updateDraft(row.id, "mtg_amount", value)
-            }
+            onChange={(value) => updateDraft(row.id, "mtg_amount", value)}
           />
         ),
       },
@@ -153,6 +145,28 @@ export default function DenXanTable({
             />
           </Space>
         ),
+      },
+
+      {
+        title: "% исхода",
+        width: 100,
+        render: (_, row) => (
+          <InputNumber
+            min={0}
+            max={100}
+            style={{ width: 80 }}
+            value={drafts[row.id]?.outgoing_percent}
+            onChange={(value) =>
+              updateDraft(row.id, "outgoing_percent", value)
+            }
+          />
+        ),
+      },
+      {
+        title: "Нужно получить",
+        dataIndex: "outgoing_after_percent",
+        width: 170,
+        render: formatMoney,
       },
 
       {

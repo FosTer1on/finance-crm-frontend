@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Card,
@@ -8,7 +8,6 @@ import {
   Typography,
   message,
 } from "antd";
-import { EditOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
 import { useDenXanStore } from "@/store/denXan/denXanStore";
@@ -59,8 +58,10 @@ export default function DenXanPage({ company, onAfterChange }) {
     rows.forEach((row) => {
       nextDrafts[row.id] = {
         total_amount: row.total_amount,
+        service_percent: row.service_percent,
         mtg_amount: row.mtg_amount,
         outgoing_amount: row.outgoing_amount,
+        outgoing_percent: row.outgoing_percent,
       };
     });
 
@@ -83,6 +84,7 @@ export default function DenXanPage({ company, onAfterChange }) {
     await saveIncoming(row.id, {
       total_amount: draft?.total_amount || "0",
       mtg_amount: draft?.mtg_amount || "0",
+      service_percent: draft?.service_percent || "6.00",
     });
 
     message.success("Приход сохранён");
@@ -97,6 +99,8 @@ export default function DenXanPage({ company, onAfterChange }) {
 
     await saveOutgoing(row.id, {
       outgoing_amount: draft?.outgoing_amount || "0",
+      outgoing_percent: draft?.outgoing_percent || "9.00",
+      outgoing_partner_id: row.outgoing_partner || null,
     });
 
     message.success("Исход сохранён");

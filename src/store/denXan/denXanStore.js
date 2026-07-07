@@ -21,6 +21,7 @@ const calculateSummary = (rows) => {
         toNumber(row.total_amount) -
         toNumber(row.profit_amount) -
         toNumber(row.mtg_amount);
+      acc.need_to_receive += toNumber(row.outgoing_after_percent);
 
       return acc;
     },
@@ -30,6 +31,7 @@ const calculateSummary = (rows) => {
       to_den_xan_account: 0,
       outgoing_total: 0,
       need_to_give: 0,
+      need_to_receive: 0,
     }
   );
 
