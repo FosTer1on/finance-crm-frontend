@@ -8,3 +8,4 @@ export * from "./reports";
 export * from "./distributors";
 export * from "./partners";
 export * from "./denXan";
+export * from "./denXanExpense";

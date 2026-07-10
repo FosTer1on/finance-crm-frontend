@@ -1,6 +1,7 @@
 import { Card, Tabs } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
+import ExpenseTab from "./tabs/ExpenseTab";
 
 import MainTab from "./tabs/MainTab";
 
@@ -16,7 +17,7 @@ export default function DenXanPage({ company, onAfterChange }) {
     {
       key: "expenses",
       label: "Прочие расходы",
-      children: <Card>Скоро сделаем прочие расходы</Card>,
+      children: <ExpenseTab company={company} onAfterChange={onAfterChange} />,
     },
     {
       key: "reports",

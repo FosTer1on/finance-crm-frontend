@@ -220,7 +220,7 @@ export default function DenXanTable({
             type="primary"
             // icon={<SaveOutlined />}
             loading={isSubmitting}
-            onClick={() => onSaveIncoming(row)}
+            onClick={() => onSaveOutgoing(row)}
           >
             Сохранить
           </Button>
