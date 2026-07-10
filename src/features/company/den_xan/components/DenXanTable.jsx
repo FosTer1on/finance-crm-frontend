@@ -57,7 +57,11 @@ export default function DenXanTable({
             <InputNumber
               min={0}
               style={{ width: 150 }}
-              value={drafts[row.id]?.total_amount}
+              value={
+                Number(drafts[row.id]?.total_amount) === 0
+                  ? null
+                  : drafts[row.id]?.total_amount
+              }
               formatter={moneyFormatter}
               parser={moneyParser}
               onChange={(value) => updateDraft(row.id, "total_amount", value)}
@@ -101,7 +105,11 @@ export default function DenXanTable({
           <InputNumber
             min={0}
             style={{ width: 150 }}
-            value={drafts[row.id]?.mtg_amount}
+            value={
+              Number(drafts[row.id]?.mtg_amount) === 0
+                ? null
+                : drafts[row.id]?.mtg_amount
+            }
             formatter={moneyFormatter}
             parser={moneyParser}
             onChange={(value) => updateDraft(row.id, "mtg_amount", value)}
@@ -141,7 +149,11 @@ export default function DenXanTable({
             <InputNumber
               min={0}
               style={{ width: 150 }}
-              value={drafts[row.id]?.outgoing_amount}
+              value={
+                Number(drafts[row.id]?.outgoing_amount) === 0
+                  ? null
+                  : drafts[row.id]?.outgoing_amount
+              }
               formatter={moneyFormatter}
               parser={moneyParser}
               onChange={(value) =>

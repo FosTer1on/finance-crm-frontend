@@ -24,7 +24,7 @@ export default function ExpenseTab({ company, onAfterChange }) {
 
   const [draft, setDraft] = useState({
     name: "",
-    amount: "0",
+    amount: null,
     expense_date: dayjs().format("YYYY-MM-DD"),
     comment: "",
   });

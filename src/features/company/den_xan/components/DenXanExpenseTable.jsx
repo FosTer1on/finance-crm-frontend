@@ -48,7 +48,13 @@ export default function DenXanExpenseTable({
           <InputNumber
             min={0}
             style={{ width: "100%" }}
-            value={row.isNew ? draft.amount : drafts[row.id]?.amount}
+            value={
+              row.isNew
+                ? Number(draft.amount || 0) === 0
+                  ? null
+                  : draft.amount
+                : drafts[row.id]?.amount
+            }
             formatter={moneyFormatter}
             parser={moneyParser}
             onChange={(value) =>
