@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Alert, Button, Card, Col, Empty, Row, Space, Spin, Typography, Tag } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useCompanyStore } from "@store/company/companyStore";
+import CompanyBottomTabs from "@/components/company/CompanyBottomTabs";
 
 const { Title, Text } = Typography;
 
@@ -23,11 +24,11 @@ export default function CompaniesPage() {
           <Text type="secondary">Список компаний</Text>
         </Col>
 
-        <Col>
+        {/* <Col>
           <Button type="primary" icon={<PlusOutlined />}>
             Добавить фирму
           </Button>
-        </Col>
+        </Col> */}
       </Row>
 
       {error && <Alert type="error" message="Ошибка" description={String(error)} showIcon />}
@@ -59,6 +60,7 @@ export default function CompaniesPage() {
           ))}
         </Row>
       )}
+      <CompanyBottomTabs />
     </Space>
   );
 }

@@ -4,6 +4,7 @@ import "dayjs/locale/ru";
 import ExpenseTab from "./tabs/ExpenseTab";
 
 import MainTab from "./tabs/MainTab";
+import ReportTab from "./tabs/ReportTab";
 
 dayjs.locale("ru");
 
@@ -22,7 +23,7 @@ export default function DenXanPage({ company, onAfterChange }) {
     {
       key: "reports",
       label: "Отчёт",
-      children: <Card>Скоро сделаем отчёт</Card>,
+      children: <ReportTab company={company} />,
     },
     {
       key: "accounts",

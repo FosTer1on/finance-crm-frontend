@@ -10,4 +10,5 @@ export const ENDPOINTS = {
   reports: "/transactions/reports/period/",
   denXanDaily: "/transactions/den-xan/daily/",
   denXanExpenses: "/transactions/den-xan/expenses/",
+  denXanReport: "/transactions/den-xan/report/",
 };
