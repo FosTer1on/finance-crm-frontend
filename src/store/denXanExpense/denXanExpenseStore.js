@@ -3,6 +3,7 @@ import {
   getDenXanExpenses,
   createDenXanExpense,
   updateDenXanExpense,
+  deleteDenXanExpense,
 } from "@api";
 
 export const useDenXanExpenseStore = create((set, get) => ({
@@ -81,5 +82,32 @@ export const useDenXanExpenseStore = create((set, get) => ({
       summary: null,
       error: null,
     });
+  },
+
+  deleteExpense: async (id) => {
+    set({
+      isSubmitting: true,
+      error: null,
+    });
+  
+    try {
+      await deleteDenXanExpense(id);
+  
+      set({
+        expenses: get().expenses.filter(
+          (expense) => expense.id !== id
+        ),
+        isSubmitting: false,
+      });
+    } catch (error) {
+      set({
+        error:
+          error?.response?.data ||
+          "Ошибка удаления расхода",
+        isSubmitting: false,
+      });
+  
+      throw error;
+    }
   },
 }));

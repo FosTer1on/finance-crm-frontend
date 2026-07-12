@@ -41,6 +41,7 @@ export default function ExpenseTab({ company, onAfterChange }) {
     createExpense,
     updateExpense,
     clearExpenses,
+    deleteExpense,
   } = useDenXanExpenseStore();
 
   const loadData = () => {
@@ -143,6 +144,16 @@ export default function ExpenseTab({ company, onAfterChange }) {
     onAfterChange?.();
   };
 
+  const handleDelete = async (row) => {
+    await deleteExpense(row.id);
+
+    message.success("Расход удалён");
+
+    await loadData();
+
+    onAfterChange?.();
+  };
+
   if (isLoading) return <Spin />;
 
   return (
@@ -208,6 +219,7 @@ export default function ExpenseTab({ company, onAfterChange }) {
           onRowChange={updateRowDraft}
           onCreate={handleCreate}
           onUpdate={handleUpdate}
+          onDelete={handleDelete}
         />
 
         <DenXanExpenseSummary summary={summary} />

@@ -18,3 +18,9 @@ export const updateDenXanExpense = async (id, payload) => {
   );
   return data;
 };
+
+export const deleteDenXanExpense = async (id) => {
+  await apiClient.delete(
+    `${ENDPOINTS.denXanExpenses}${id}/`
+  );
+};

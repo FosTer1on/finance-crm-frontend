@@ -1,9 +1,19 @@
 import { useMemo } from "react";
-import { Button, DatePicker, Input, InputNumber, Table } from "antd";
-import { SaveOutlined } from "@ant-design/icons";
+import {
+  Button,
+  DatePicker,
+  Input,
+  InputNumber,
+  Popconfirm,
+  Space,
+  Table,
+} from "antd";
+import {
+  DeleteOutlined,
+  SaveOutlined,
+} from "@ant-design/icons";
 import dayjs from "dayjs";
 
-import { formatMoney } from "@/utils/formatMoney";
 import { moneyFormatter, moneyParser } from "../utils/numberInput";
 
 export default function DenXanExpenseTable({
@@ -15,6 +25,7 @@ export default function DenXanExpenseTable({
   onRowChange,
   onCreate,
   onUpdate,
+  onDelete,
 }) {
   const tableData = [
     {
@@ -104,17 +115,38 @@ export default function DenXanExpenseTable({
         ),
       },
       {
-        title: "",
-        width: 130,
+        title: "Действия",
+        width: 230,
         render: (_, row) => (
-          <Button
-            type="primary"
-            icon={<SaveOutlined />}
-            loading={isSubmitting}
-            onClick={() => (row.isNew ? onCreate() : onUpdate(row))}
-          >
-            Сохранить
-          </Button>
+          <Space>
+            <Button
+              type="primary"
+              icon={<SaveOutlined />}
+              loading={isSubmitting}
+              onClick={() =>
+                row.isNew ? onCreate() : onUpdate(row)
+              }
+            >
+              Сохранить
+            </Button>
+      
+            {!row.isNew && (
+              <Popconfirm
+                title="Удалить расход?"
+                description="Сумма расхода вернётся на баланс счёта."
+                okText="Удалить"
+                cancelText="Отмена"
+                okButtonProps={{ danger: true }}
+                onConfirm={() => onDelete(row)}
+              >
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                  disabled={isSubmitting}
+                />
+              </Popconfirm>
+            )}
+          </Space>
         ),
       },
     ],
