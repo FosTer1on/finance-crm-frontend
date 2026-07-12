@@ -53,3 +53,12 @@ export const saveDenXanOutgoingComment = async (rowId, payload) => {
 
   return data;
 };
+
+export const saveDenXanRates = async (dayId, payload) => {
+  const { data } = await apiClient.patch(
+    `${ENDPOINTS.denXanDaily}${dayId}/save-rates/`,
+    payload
+  );
+
+  return data;
+};

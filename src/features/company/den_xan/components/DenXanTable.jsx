@@ -9,6 +9,7 @@ import {
 
 import { formatMoney } from "@/utils/formatMoney";
 import { moneyFormatter, moneyParser } from "../utils/numberInput";
+import { formatUsd } from "../utils/formatCurrency";
 
 export default function DenXanTable({
   rows,
@@ -75,6 +76,13 @@ export default function DenXanTable({
           </Space>
         ),
       },
+
+      // {
+      //   title: "Приход, $",
+      //   dataIndex: "incoming_usd",
+      //   width: 140,
+      //   render: formatUsd,
+      // },
 
       {
         title: "%",
@@ -170,6 +178,13 @@ export default function DenXanTable({
         ),
       },
 
+      // {
+      //   title: "Исход, $",
+      //   dataIndex: "outgoing_usd",
+      //   width: 140,
+      //   render: formatUsd,
+      // },
+
       {
         title: "%",
         width: 100,
@@ -249,7 +264,7 @@ export default function DenXanTable({
       columns={columns}
       dataSource={rows}
       pagination={false}
-      scroll={{ x: 1600 }}
+      scroll={{ x: 1900 }}
     />
   );
 }

@@ -6,6 +6,7 @@ import {
   saveDenXanOutgoing,
   saveDenXanIncomingComment,
   saveDenXanOutgoingComment,
+  saveDenXanRates,
 } from "@api";
 
 const toNumber = (value) => Number(value || 0);
@@ -39,6 +40,7 @@ const calculateSummary = (rows) => {
 };
 
 export const useDenXanStore = create((set, get) => ({
+  day: null,
   date: null,
   rows: [],
   summary: null,
@@ -48,23 +50,42 @@ export const useDenXanStore = create((set, get) => ({
   error: null,
 
   loadDaily: async ({ company, date }) => {
-    set({ isLoading: true, error: null });
+    set({
+      isLoading: true,
+      error: null,
+      currentQuery: { company, date },
+    });
 
     try {
       const data = await getDenXanDaily({ company, date });
 
       set({
+        day: data.day || null,
         date: data.date,
         rows: data.rows || [],
         summary: data.summary || null,
         isLoading: false,
       });
+
+      return data;
     } catch (error) {
       set({
         error: error?.response?.data || "Ошибка загрузки DEN XAN",
         isLoading: false,
       });
+
+      throw error;
     }
+  },
+
+  reloadCurrentDay: async () => {
+    const query = get().currentQuery;
+
+    if (!query?.company || !query?.date) {
+      return null;
+    }
+
+    return get().loadDaily(query);
   },
 
   updateRowLocal: (updatedRow) => {
@@ -83,8 +104,11 @@ export const useDenXanStore = create((set, get) => ({
 
     try {
       const updatedRow = await saveDenXanIncoming(rowId, payload);
-      get().updateRowLocal(updatedRow);
+
       set({ isSubmitting: false });
+
+      await get().reloadCurrentDay();
+
       return updatedRow;
     } catch (error) {
       set({
@@ -97,34 +121,42 @@ export const useDenXanStore = create((set, get) => ({
 
   addIncoming: async (rowId, payload) => {
     set({ isSubmitting: true, error: null });
-
+  
     try {
       const updatedRow = await addDenXanIncoming(rowId, payload);
-      get().updateRowLocal(updatedRow);
+  
       set({ isSubmitting: false });
+  
+      await get().reloadCurrentDay();
+  
       return updatedRow;
     } catch (error) {
       set({
         error: error?.response?.data || "Ошибка добавления прихода",
         isSubmitting: false,
       });
+  
       throw error;
     }
   },
 
   saveOutgoing: async (rowId, payload) => {
     set({ isSubmitting: true, error: null });
-
+  
     try {
       const updatedRow = await saveDenXanOutgoing(rowId, payload);
-      get().updateRowLocal(updatedRow);
+  
       set({ isSubmitting: false });
+  
+      await get().reloadCurrentDay();
+  
       return updatedRow;
     } catch (error) {
       set({
         error: error?.response?.data || "Ошибка сохранения исхода",
         isSubmitting: false,
       });
+  
       throw error;
     }
   },
@@ -163,11 +195,40 @@ export const useDenXanStore = create((set, get) => ({
     }
   },
 
+  saveRates: async (dayId, payload) => {
+    set({
+      isSubmitting: true,
+      error: null,
+    });
+
+    try {
+      const day = await saveDenXanRates(dayId, payload);
+
+      set({
+        day,
+        isSubmitting: false,
+      });
+
+      await get().reloadCurrentDay();
+
+      return day;
+    } catch (error) {
+      set({
+        error: error?.response?.data || "Ошибка сохранения курсов",
+        isSubmitting: false,
+      });
+
+      throw error;
+    }
+  },
+
   clearDenXan: () => {
     set({
+      day: null,
       date: null,
       rows: [],
       summary: null,
+      currentQuery: null,
       error: null,
     });
   },

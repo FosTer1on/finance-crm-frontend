@@ -19,6 +19,7 @@ import CommentModal from "../modals/CommentModal";
 import AddIncomingModal from "../modals/AddIncomingModal";
 import CreatePartnerModal from "../modals/CreatePartnerModal";
 import PartnerInfoModal from "../modals/PartnerInfoModal";
+import DenXanRates from "../components/DenXanRates";
 
 const { Text } = Typography;
 
@@ -29,8 +30,13 @@ export default function MainTab({ company, onAfterChange }) {
   const [addModal, setAddModal] = useState(null);
   const [partnerModal, setPartnerModal] = useState(null);
   const [partnerInfoModal, setPartnerInfoModal] = useState(null);
+  const [rateDraft, setRateDraft] = useState({
+    den_xan_rate: null,
+    street_rate: null,
+  });
 
   const {
+    day,
     date,
     rows,
     summary,
@@ -38,6 +44,7 @@ export default function MainTab({ company, onAfterChange }) {
     isSubmitting,
     error,
     loadDaily,
+    saveRates,
     saveIncoming,
     addIncoming,
     saveOutgoing,
@@ -66,6 +73,13 @@ export default function MainTab({ company, onAfterChange }) {
       clearPartners();
     };
   }, [company?.id, dateValue, loadDaily, loadPartners, clearPartners]);
+
+  useEffect(() => {
+    setRateDraft({
+      den_xan_rate: day?.den_xan_rate ?? null,
+      street_rate: day?.street_rate ?? null,
+    });
+  }, [day]);
 
   useEffect(() => {
     const nextDrafts = {};
@@ -187,6 +201,25 @@ export default function MainTab({ company, onAfterChange }) {
     message.success("Фирма исхода создана");
   };
 
+  const handleSaveRates = async () => {
+    if (!day?.id) {
+      message.error("Рабочий день не найден");
+      return;
+    }
+
+    if (!rateDraft.den_xan_rate || !rateDraft.street_rate) {
+      message.error("Введите оба курса");
+      return;
+    }
+
+    await saveRates(day.id, {
+      den_xan_rate: rateDraft.den_xan_rate,
+      street_rate: rateDraft.street_rate,
+    });
+
+    message.success("Курсы сохранены");
+  };
+
   if (isLoading) return <Spin />;
 
   return (
@@ -200,14 +233,27 @@ export default function MainTab({ company, onAfterChange }) {
         />
       )}
 
-      <Space>
-        <Text strong>Дата:</Text>
-        <DatePicker
-          value={selectedDate}
-          format="YYYY-MM-DD"
-          onChange={(value) => {
-            if (value) setSelectedDate(value);
-          }}
+      <Space style={{ display: "flex", justifyContent: "space-between" }}>
+        <Space>
+          <Text strong>Дата:</Text>
+          <DatePicker
+            value={selectedDate}
+            format="YYYY-MM-DD"
+            onChange={(value) => {
+              if (value) setSelectedDate(value);
+            }}
+          />
+        </Space>
+        <DenXanRates
+          rates={rateDraft}
+          loading={isSubmitting}
+          onChange={(field, value) =>
+            setRateDraft((prev) => ({
+              ...prev,
+              [field]: value,
+            }))
+          }
+          onSave={handleSaveRates}
         />
       </Space>
 
@@ -293,7 +339,9 @@ export default function MainTab({ company, onAfterChange }) {
 
       <PartnerInfoModal
         open={Boolean(partnerInfoModal)}
-        form={partnerInfoModal || { name: "", inn: "", contacts: "", comment: "" }}
+        form={
+          partnerInfoModal || { name: "", inn: "", contacts: "", comment: "" }
+        }
         loading={isPartnerSubmitting}
         onCancel={() => setPartnerInfoModal(null)}
         onChange={(field, value) =>
