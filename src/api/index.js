@@ -10,3 +10,4 @@ export * from "./partners";
 export * from "./denXan";
 export * from "./denXanExpense";
 export * from "./denXanReport";
+export * from "./denXanCash";

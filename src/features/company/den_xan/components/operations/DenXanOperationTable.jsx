@@ -128,12 +128,6 @@ export default function DenXanOperationTable({
                   }
                 }}
               />
-
-              {row.isNew && allowNegative && (
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  Плюс пополняет баланс, минус уменьшает.
-                </Text>
-              )}
             </Space>
           );
         },
