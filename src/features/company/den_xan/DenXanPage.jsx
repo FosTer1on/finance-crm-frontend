@@ -17,7 +17,7 @@ export default function DenXanPage({ company, onAfterChange }) {
     },
     {
       key: "expenses",
-      label: "Прочие расходы",
+      label: "Прочие расходы со счета",
       children: <ExpenseTab company={company} onAfterChange={onAfterChange} />,
     },
     {

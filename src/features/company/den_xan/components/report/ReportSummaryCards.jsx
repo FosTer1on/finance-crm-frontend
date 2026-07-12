@@ -8,7 +8,7 @@ const items = [
   },
   {
     key: "profit_total",
-    title: "Прибыль",
+    title: "Комиссия 6%",
   },
   {
     key: "mtg_total",
@@ -20,19 +20,19 @@ const items = [
   },
   {
     key: "given_total",
-    title: "Отдали после вычета % и MTG",
+    title: "Ответ кэша для Den Xan",
   },
   {
     key: "outgoing_total",
-    title: "Общая сумма исходов",
+    title: "Расходы на рекламу",
   },
   {
     key: "need_to_receive",
-    title: "Нужно получить после вычета %",
+    title: "Кэш от рекламы",
   },
   {
     key: "expenses_total",
-    title: "Прочие расходы",
+    title: "Прочие расходы со счета",
   },
 ];
 

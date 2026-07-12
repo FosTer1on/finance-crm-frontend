@@ -49,7 +49,7 @@ export default function DenXanTable({
       },
 
       {
-        title: "Общая сумма",
+        title: "Сумма прихода",
         width: 210,
 
         render: (_, row) => (
@@ -91,7 +91,7 @@ export default function DenXanTable({
       },
 
       {
-        title: "Прибыль",
+        title: "Комиссия 6%",
         dataIndex: "profit_amount",
         width: 150,
         render: formatMoney,
@@ -141,7 +141,7 @@ export default function DenXanTable({
       },
 
       {
-        title: "Сумма исхода",
+        title: "Сумма вывода на рекламу",
         width: 210,
 
         render: (_, row) => (
@@ -171,7 +171,7 @@ export default function DenXanTable({
       },
 
       {
-        title: "% исхода",
+        title: "%",
         width: 100,
         render: (_, row) => (
           <InputNumber
@@ -184,14 +184,14 @@ export default function DenXanTable({
         ),
       },
       {
-        title: "Нужно получить",
+        title: "Кэш от рекламы",
         dataIndex: "outgoing_after_percent",
         width: 170,
         render: formatMoney,
       },
 
       {
-        title: "Фирма исхода",
+        title: "Фирма рекламы",
         width: 300,
         render: (_, row) => (
           <Space>
