@@ -12,4 +12,7 @@ export const ENDPOINTS = {
   denXanExpenses: "/transactions/den-xan/expenses/",
   denXanReport: "/transactions/den-xan/report/",
   denXanCash: "/transactions/den-xan/cash/",
+  clearingPeople: "/clearing/people/",
+  clearingCompanies: "/clearing/companies/",
+  clearingOperations: "/clearing/operations/",
 };

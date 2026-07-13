@@ -60,7 +60,6 @@ export default function CompaniesPage() {
           ))}
         </Row>
       )}
-      <CompanyBottomTabs />
     </Space>
   );
 }

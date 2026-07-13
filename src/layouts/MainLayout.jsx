@@ -1,3 +1,7 @@
+import { useEffect } from "react";
+
+import WorkbookTabs from "@/components/layout/WorkbookTabs";
+import { useCompanyStore } from "@/store/company/companyStore";
 import { Outlet } from "react-router-dom";
 import { Layout, Typography } from "antd";
 
@@ -5,6 +9,11 @@ const { Header, Content } = Layout;
 const { Title } = Typography;
 
 export default function MainLayout() {
+  const { companies, loadCompanies } = useCompanyStore();
+
+  useEffect(() => {
+    loadCompanies();
+  }, [loadCompanies]);
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header
@@ -19,9 +28,10 @@ export default function MainLayout() {
         </Title>
       </Header>
 
-      <Content style={{ padding: 24, paddingBottom: 72 }}>
+      <Content style={{ padding: 24, paddingBottom: 50 }}>
         <Outlet />
       </Content>
+      <WorkbookTabs companies={companies} />
     </Layout>
   );
 }

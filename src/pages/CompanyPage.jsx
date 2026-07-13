@@ -99,7 +99,6 @@ export default function CompanyPage() {
             onAfterChange={() => loadAccounts(id)}
           />
         </Space>
-        <CompanyBottomTabs />
       </>
     );
   }
@@ -173,8 +172,6 @@ export default function CompanyPage() {
       <CompanyHeader company={selectedCompany} totalBalance={totalBalance} />
 
       <Tabs defaultActiveKey="incoming" items={tabItems} />
-
-      <CompanyBottomTabs />
     </Space>
   );
 }
