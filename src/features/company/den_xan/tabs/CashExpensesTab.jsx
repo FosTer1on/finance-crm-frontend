@@ -2,10 +2,8 @@ import { useEffect, useState } from "react";
 import {
   Alert,
   Card,
-  DatePicker,
   Space,
   Spin,
-  Typography,
   message,
 } from "antd";
 import dayjs from "dayjs";
@@ -14,9 +12,9 @@ import { useDenXanCashStore } from "@/store/denXanCash/denXanCashStore";
 
 import DenXanCashTable from "../components/DenXanCashTable";
 import DenXanCashSummary from "../components/DenXanCashSummary";
+import DenXanPeriodFilter from "../components/DenXanPeriodFilter";
 
-const { RangePicker } = DatePicker;
-const { Text } = Typography;
+import { getPeriodRange } from "../utils/periodPresets";
 
 const createEmptyDraft = () => ({
   name: "",
@@ -26,14 +24,11 @@ const createEmptyDraft = () => ({
 });
 
 export default function CashExpensesTab({ company }) {
-  const [period, setPeriod] = useState([
-    dayjs().startOf("month"),
-    dayjs().endOf("month"),
-  ]);
+  const [period, setPeriod] = useState(getPeriodRange("month"));
 
-  const [draft, setDraft] = useState(
-    createEmptyDraft
-  );
+  const [activePreset, setActivePreset] = useState("month");
+
+  const [draft, setDraft] = useState(createEmptyDraft);
   const [drafts, setDrafts] = useState({});
 
   const {
@@ -173,11 +168,7 @@ export default function CashExpensesTab({ company }) {
   }
 
   return (
-    <Space
-      direction="vertical"
-      size="middle"
-      style={{ width: "100%" }}
-    >
+    <Space direction="vertical" size="middle" style={{ width: "100%" }}>
       {error && (
         <Alert
           type="error"
@@ -187,24 +178,16 @@ export default function CashExpensesTab({ company }) {
         />
       )}
 
-      <Space wrap>
-        <Text strong>Период:</Text>
+      <DenXanPeriodFilter
+        value={period}
+        activePreset={activePreset}
+        onChange={({ range, preset }) => {
+          setPeriod(range);
+          setActivePreset(preset);
+        }}
+      />
 
-        <RangePicker
-          value={period}
-          format="DD.MM.YYYY"
-          onChange={(values) => {
-            if (values?.[0] && values?.[1]) {
-              setPeriod(values);
-            }
-          }}
-        />
-      </Space>
-
-      <DenXanCashSummary
-          account={account}
-          summary={summary}
-        />
+      <DenXanCashSummary account={account} summary={summary} />
 
       <Card title="Расходы кэш">
         <DenXanCashTable

@@ -16,12 +16,15 @@ import { useDenXanExpenseStore } from "@/store/denXanExpense/denXanExpenseStore"
 import DenXanExpenseTable from "../components/DenXanExpenseTable";
 import DenXanExpenseSummary from "../components/DenXanExpenseSummary";
 import DenXanExpenseGroups from "../components/DenXanExpenseGroups";
+import DenXanPeriodFilter from "../components/DenXanPeriodFilter";
+import { getPeriodRange } from "../utils/periodPresets";
 
 const { Text } = Typography;
 
 export default function ExpenseTab({ company, onAfterChange }) {
-  const [selectedMonth, setSelectedMonth] = useState(dayjs().startOf("month"));
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [period, setPeriod] = useState(getPeriodRange("month"));
+
+  const [activePreset, setActivePreset] = useState("month");
 
   const [draft, setDraft] = useState({
     name: "",
@@ -31,6 +34,9 @@ export default function ExpenseTab({ company, onAfterChange }) {
   });
 
   const [drafts, setDrafts] = useState({});
+
+  const dateFrom = period?.[0]?.format("YYYY-MM-DD");
+  const dateTo = period?.[1]?.format("YYYY-MM-DD");
 
   const {
     expenses,
@@ -50,18 +56,20 @@ export default function ExpenseTab({ company, onAfterChange }) {
 
     loadExpenses({
       company: company.id,
-      month: selectedMonth.format("YYYY-MM-DD"),
-      ...(selectedDate ? { date: selectedDate } : {}),
+      date_from: dateFrom,
+      date_to: dateTo,
     });
   };
 
   useEffect(() => {
-    loadData();
+    if (!company?.id || !dateFrom || !dateTo) return;
 
-    return () => {
-      clearExpenses();
-    };
-  }, [company?.id, selectedMonth, selectedDate]);
+    loadExpenses({
+      company: company.id,
+      date_from: dateFrom,
+      date_to: dateTo,
+    });
+  }, [company?.id, dateFrom, dateTo, loadExpenses]);
 
   useEffect(() => {
     const nextDrafts = {};
@@ -168,47 +176,14 @@ export default function ExpenseTab({ company, onAfterChange }) {
         />
       )}
 
-      <Space wrap>
-        <Text strong>Месяц:</Text>
-        <DatePicker
-          picker="month"
-          value={selectedMonth}
-          format="MMMM YYYY"
-          onChange={(value) => {
-            if (value) {
-              setSelectedMonth(value.startOf("month"));
-              setSelectedDate(null);
-            }
-          }}
-        />
-
-        <Text strong>Дата:</Text>
-        <Select
-          style={{ width: 180 }}
-          value={selectedDate || "all"}
-          options={[
-            { value: "all", label: "Все" },
-            ...Array.from(
-              { length: selectedMonth.daysInMonth() },
-              (_, index) => {
-                const date = selectedMonth.date(index + 1);
-                return {
-                  value: date.format("YYYY-MM-DD"),
-                  label: date.format("DD.MM.YYYY"),
-                };
-              }
-            ),
-          ]}
-          onChange={(value) => {
-            setSelectedDate(value === "all" ? null : value);
-            setDraft((prev) => ({
-              ...prev,
-              expense_date:
-                value === "all" ? dayjs().format("YYYY-MM-DD") : value,
-            }));
-          }}
-        />
-      </Space>
+      <DenXanPeriodFilter
+        value={period}
+        activePreset={activePreset}
+        onChange={({ range, preset }) => {
+          setPeriod(range);
+          setActivePreset(preset);
+        }}
+      />
 
       <Card title="Прочие расходы">
         <DenXanExpenseTable
