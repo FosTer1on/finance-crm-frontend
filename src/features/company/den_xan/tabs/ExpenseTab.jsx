@@ -15,6 +15,7 @@ import { useDenXanExpenseStore } from "@/store/denXanExpense/denXanExpenseStore"
 
 import DenXanExpenseTable from "../components/DenXanExpenseTable";
 import DenXanExpenseSummary from "../components/DenXanExpenseSummary";
+import DenXanExpenseGroups from "../components/DenXanExpenseGroups";
 
 const { Text } = Typography;
 
@@ -223,6 +224,8 @@ export default function ExpenseTab({ company, onAfterChange }) {
         />
 
         <DenXanExpenseSummary summary={summary} />
+
+        <DenXanExpenseGroups groups={summary?.groups || []} />
       </Card>
     </Space>
   );
