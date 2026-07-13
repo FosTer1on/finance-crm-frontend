@@ -85,7 +85,7 @@ export default function MainTab({ company, onAfterChange }) {
     const nextDrafts = {};
 
     const defaultPartner = partners.find(
-      (partner) => partner.name?.toLowerCase() === "mma grade plast"
+      (partner) => partner.is_default
     );
 
     rows.forEach((row) => {
