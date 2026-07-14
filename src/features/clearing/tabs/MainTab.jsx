@@ -171,11 +171,6 @@ export default function MainTab() {
       return false;
     }
 
-    if (!form.sender_company_id) {
-      message.error("Выберите фирму прихода");
-      return false;
-    }
-
     if (
       form.incoming_amount === null ||
       form.incoming_amount === undefined ||
@@ -195,11 +190,6 @@ export default function MainTab() {
       return false;
     }
 
-    if (!form.receiver_company_id) {
-      message.error("Выберите фирму получения");
-      return false;
-    }
-
     if (form.outgoing_percent === null || form.outgoing_percent === undefined) {
       message.error("Введите комиссию получения");
       return false;
@@ -212,7 +202,7 @@ export default function MainTab() {
     operation_date: dateValue,
   
     sender_person_id: form.sender_person_id,
-    sender_company_id: form.sender_company_id,
+    sender_company_id: form.sender_company_id || null,
   
     incoming_amount: form.incoming_amount,
     incoming_percent: form.incoming_percent,
@@ -224,7 +214,7 @@ export default function MainTab() {
         : form.incoming_usd_rate,
   
     receiver_person_id: form.receiver_person_id,
-    receiver_company_id: form.receiver_company_id,
+    receiver_company_id: form.receiver_company_id || null,
   
     outgoing_percent: form.outgoing_percent,
     outgoing_usd_rate:
