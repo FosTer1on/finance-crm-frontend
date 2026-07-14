@@ -93,3 +93,14 @@ export const deleteClearingOperation = async (operationId) => {
     `${ENDPOINTS.clearingOperations}${operationId}/`
   );
 };
+
+export const getClearingReport = async (params) => {
+  const { data } = await apiClient.get(
+    ENDPOINTS.clearingReport,
+    {
+      params,
+    }
+  );
+
+  return data;
+};

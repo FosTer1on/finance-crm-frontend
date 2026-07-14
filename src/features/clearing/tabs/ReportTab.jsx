@@ -1,44 +1,43 @@
 import { useEffect, useState } from "react";
 import { Alert, Button, Card, DatePicker, Space, Spin, Typography } from "antd";
-import dayjs from "dayjs";
 
-import { useDenXanReportStore } from "@/store/denXanReport/denXanReportStore";
+import { useClearingReportStore } from "@/store/clearingReport/clearingReportStore";
+
 import {
   getReportPeriod,
   REPORT_PERIODS,
   serializeReportPeriod,
 } from "@/utils/reportPeriods";
+
 import ReportSummaryCards from "../components/report/ReportSummaryCards";
-import DistributorReportTable from "../components/report/DistributorReportTable";
+import PeopleReportTable from "../components/report/PeopleReportTable";
+import CompanyReportTable from "../components/report/CompanyReportTable";
 import OperationsReportTable from "../components/report/OperationsReportTable";
-import ExpensesReportTable from "../components/report/ExpensesReportTable";
 
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
 
-export default function ReportTab({ company }) {
-  const [periodType, setPeriodType] = useState(REPORT_PERIODS.MONTH);
-
+export default function ReportTab() {
   const initialPeriod = getReportPeriod(REPORT_PERIODS.MONTH);
 
+  const [periodType, setPeriodType] = useState(REPORT_PERIODS.MONTH);
   const [dateFrom, setDateFrom] = useState(initialPeriod.dateFrom);
   const [dateTo, setDateTo] = useState(initialPeriod.dateTo);
 
   const { report, isLoading, error, loadReport, clearReport } =
-    useDenXanReportStore();
+    useClearingReportStore();
 
   const loadData = async (from = dateFrom, to = dateTo) => {
-    if (!company?.id || !from || !to) return;
+    if (!from || !to) {
+      return;
+    }
 
-    const period = serializeReportPeriod({
-      dateFrom: from,
-      dateTo: to,
-    });
-
-    await loadReport({
-      company: company.id,
-      ...period,
-    });
+    await loadReport(
+      serializeReportPeriod({
+        dateFrom: from,
+        dateTo: to,
+      })
+    );
   };
 
   useEffect(() => {
@@ -47,7 +46,7 @@ export default function ReportTab({ company }) {
     return () => {
       clearReport();
     };
-  }, [company?.id]);
+  }, []);
 
   const handleQuickPeriod = async (type) => {
     const period = getReportPeriod(type);
@@ -60,7 +59,9 @@ export default function ReportTab({ company }) {
   };
 
   const handleCustomPeriod = async (values) => {
-    if (!values?.[0] || !values?.[1]) return;
+    if (!values?.[0] || !values?.[1]) {
+      return;
+    }
 
     setPeriodType(REPORT_PERIODS.CUSTOM);
     setDateFrom(values[0]);
@@ -119,6 +120,7 @@ export default function ReportTab({ company }) {
           <RangePicker
             value={[dateFrom, dateTo]}
             format="DD.MM.YYYY"
+            allowClear={false}
             onChange={handleCustomPeriod}
           />
 
@@ -133,11 +135,11 @@ export default function ReportTab({ company }) {
         <>
           <ReportSummaryCards summary={report.summary} />
 
-          <DistributorReportTable rows={report.distributors || []} />
+          <PeopleReportTable rows={report.people || []} />
+
+          <CompanyReportTable rows={report.companies || []} />
 
           <OperationsReportTable rows={report.operations || []} />
-
-          <ExpensesReportTable rows={report.expenses || []} />
         </>
       )}
     </Space>
