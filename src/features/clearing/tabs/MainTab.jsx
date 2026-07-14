@@ -190,15 +190,6 @@ export default function MainTab() {
       return false;
     }
 
-    if (
-      form.incoming_usd_rate === null ||
-      form.incoming_usd_rate === undefined ||
-      Number(form.incoming_usd_rate) <= 0
-    ) {
-      message.error("Введите курс прихода");
-      return false;
-    }
-
     if (!form.receiver_person_id) {
       message.error("Выберите получателя");
       return false;
@@ -214,34 +205,35 @@ export default function MainTab() {
       return false;
     }
 
-    if (
-      form.outgoing_usd_rate === null ||
-      form.outgoing_usd_rate === undefined ||
-      Number(form.outgoing_usd_rate) <= 0
-    ) {
-      message.error("Введите курс получения");
-      return false;
-    }
-
     return true;
   };
 
   const buildOperationPayload = (form) => ({
     operation_date: dateValue,
-
+  
     sender_person_id: form.sender_person_id,
     sender_company_id: form.sender_company_id,
-
+  
     incoming_amount: form.incoming_amount,
     incoming_percent: form.incoming_percent,
-    incoming_usd_rate: form.incoming_usd_rate,
-
+    incoming_usd_rate:
+      form.incoming_usd_rate === null ||
+      form.incoming_usd_rate === undefined ||
+      form.incoming_usd_rate === ""
+        ? null
+        : form.incoming_usd_rate,
+  
     receiver_person_id: form.receiver_person_id,
     receiver_company_id: form.receiver_company_id,
-
+  
     outgoing_percent: form.outgoing_percent,
-    outgoing_usd_rate: form.outgoing_usd_rate,
-
+    outgoing_usd_rate:
+      form.outgoing_usd_rate === null ||
+      form.outgoing_usd_rate === undefined ||
+      form.outgoing_usd_rate === ""
+        ? null
+        : form.outgoing_usd_rate,
+  
     comment: form.comment || "",
   });
 

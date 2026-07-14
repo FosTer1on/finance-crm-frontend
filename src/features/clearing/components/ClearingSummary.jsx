@@ -1,4 +1,4 @@
-import { Card, Col, Row, Statistic } from "antd";
+import { Alert, Card, Col, Row, Statistic } from "antd";
 
 import { formatMoney } from "@/utils/formatMoney";
 import { formatUsd } from "../utils/formatCurrency";
@@ -69,6 +69,21 @@ export default function ClearingSummary({ summary }) {
             />
           </Card>
         </Col>
+
+        {(Number(summary.incoming_rates_missing_count || 0) > 0 ||
+          Number(summary.outgoing_rates_missing_count || 0) > 0) && (
+          <Alert
+            type="warning"
+            showIcon
+            style={{ marginTop: 16 }}
+            message="Долларовые итоги рассчитаны не по всем операциям"
+            description={`Без курса прихода: ${
+              summary.incoming_rates_missing_count || 0
+            }, без курса получения: ${
+              summary.outgoing_rates_missing_count || 0
+            }`}
+          />
+        )}
       </Row>
     </Card>
   );
