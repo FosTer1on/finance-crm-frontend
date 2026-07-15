@@ -9,41 +9,15 @@ import {
   saveDenXanRates,
 } from "@api";
 
-const toNumber = (value) => Number(value || 0);
 
-const calculateSummary = (rows) => {
-  const summary = rows.reduce(
-    (acc, row) => {
-      acc.profit += toNumber(row.profit_amount);
-      acc.mtg += toNumber(row.mtg_amount);
-      acc.to_den_xan_account += toNumber(row.amount_to_account);
-      acc.outgoing_total += toNumber(row.outgoing_amount);
-      acc.need_to_give +=
-        toNumber(row.total_amount) -
-        toNumber(row.profit_amount) -
-        toNumber(row.mtg_amount);
-      acc.need_to_receive += toNumber(row.outgoing_after_percent);
-
-      return acc;
-    },
-    {
-      profit: 0,
-      mtg: 0,
-      to_den_xan_account: 0,
-      outgoing_total: 0,
-      need_to_give: 0,
-      need_to_receive: 0,
-    }
-  );
-
-  return summary;
-};
 
 export const useDenXanStore = create((set, get) => ({
   day: null,
   date: null,
   rows: [],
   summary: null,
+
+  currentQuery: null,
 
   isLoading: false,
   isSubmitting: false,
@@ -89,14 +63,11 @@ export const useDenXanStore = create((set, get) => ({
   },
 
   updateRowLocal: (updatedRow) => {
-    const rows = get().rows.map((row) =>
-      row.id === updatedRow.id ? updatedRow : row
-    );
-
-    set({
-      rows,
-      summary: calculateSummary(rows),
-    });
+    set((state) => ({
+      rows: state.rows.map((row) =>
+        row.id === updatedRow.id ? updatedRow : row
+      ),
+    }));
   },
 
   saveIncoming: async (rowId, payload) => {
