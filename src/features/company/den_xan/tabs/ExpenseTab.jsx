@@ -26,12 +26,14 @@ export default function ExpenseTab({ company, onAfterChange }) {
 
   const [activePreset, setActivePreset] = useState("month");
 
-  const [draft, setDraft] = useState({
+  const createEmptyDraft = () => ({
     name: "",
     amount: null,
     expense_date: dayjs().format("YYYY-MM-DD"),
     comment: "",
   });
+
+  const [draft, setDraft] = useState(createEmptyDraft);
 
   const [drafts, setDrafts] = useState({});
 
@@ -51,10 +53,12 @@ export default function ExpenseTab({ company, onAfterChange }) {
     deleteExpense,
   } = useDenXanExpenseStore();
 
-  const loadData = () => {
-    if (!company?.id) return;
-
-    loadExpenses({
+  const loadData = async () => {
+    if (!company?.id || !dateFrom || !dateTo) {
+      return;
+    }
+  
+    await loadExpenses({
       company: company.id,
       date_from: dateFrom,
       date_to: dateTo,
@@ -89,7 +93,10 @@ export default function ExpenseTab({ company, onAfterChange }) {
   const updateDraft = (field, value) => {
     setDraft((prev) => ({
       ...prev,
-      [field]: value ?? "",
+      [field]:
+        field === "amount"
+          ? value ?? null
+          : value ?? "",
     }));
   };
 
@@ -108,29 +115,29 @@ export default function ExpenseTab({ company, onAfterChange }) {
       message.error("Введите название расхода");
       return;
     }
-
-    if (!Number(draft.amount)) {
+  
+    if (
+      draft.amount === null ||
+      draft.amount === undefined ||
+      Number(draft.amount) <= 0
+    ) {
       message.error("Введите сумму расхода");
       return;
     }
-
+  
     await createExpense({
       company_id: company.id,
-      name: draft.name,
-      amount: draft.amount || "0",
+      name: draft.name.trim(),
+      amount: draft.amount,
       expense_date: draft.expense_date,
       comment: draft.comment || "",
     });
-
-    setDraft({
-      name: "",
-      amount: "0",
-      expense_date: selectedDate || dayjs().format("YYYY-MM-DD"),
-      comment: "",
-    });
-
+  
+    setDraft(createEmptyDraft());
+  
     message.success("Расход создан");
-    loadData();
+  
+    await loadData();
     onAfterChange?.();
   };
 

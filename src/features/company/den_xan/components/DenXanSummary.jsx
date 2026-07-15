@@ -61,6 +61,10 @@ export default function DenXanSummary({ summary }) {
       usd: summary.cash_from_ads_usd,
     },
     {
+      key: "outgoing_before_percent_total",
+      title: "Общая сумма исходов",
+    },
+    {
       key: "loss",
       title: lossLabel,
       uzs: summary.loss_uzs,
