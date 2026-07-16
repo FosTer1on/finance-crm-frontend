@@ -24,15 +24,15 @@ export default function ClearingSummary({ summary }) {
       type: "both",
     },
     {
-      key: "outgoing_commission_total",
-      title: "Комиссия получения",
-      type: "uzs",
-    },
-    {
       key: "amount_to_receive_total",
       usdKey: "amount_to_receive_usd_total",
       title: "К получению",
       type: "both",
+    },
+    {
+      key: "outgoing_commission_total",
+      title: "Комиссия получения",
+      type: "uzs",
     },
     {
       key: "profit_uzs",
@@ -69,7 +69,6 @@ export default function ClearingSummary({ summary }) {
             />
           </Card>
         </Col>
-
         {(Number(summary.incoming_rates_missing_count || 0) > 0 ||
           Number(summary.outgoing_rates_missing_count || 0) > 0) && (
           <Alert

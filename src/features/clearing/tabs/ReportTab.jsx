@@ -11,7 +11,6 @@ import {
 
 import ReportSummaryCards from "../components/report/ReportSummaryCards";
 import PeopleReportTable from "../components/report/PeopleReportTable";
-import CompanyReportTable from "../components/report/CompanyReportTable";
 import OperationsReportTable from "../components/report/OperationsReportTable";
 
 const { RangePicker } = DatePicker;
@@ -136,8 +135,6 @@ export default function ReportTab() {
           <ReportSummaryCards summary={report.summary} />
 
           <PeopleReportTable rows={report.people || []} />
-
-          <CompanyReportTable rows={report.companies || []} />
 
           <OperationsReportTable rows={report.operations || []} />
         </>

@@ -17,7 +17,6 @@ import {
 } from "@/features/company/den_xan/utils/numberInput";
 
 import ClearingPersonField from "./ClearingPersonField";
-import ClearingCompanyField from "./ClearingCompanyField";
 
 import { formatUsd } from "../utils/formatCurrency";
 import { calculateOperationPreview } from "../utils/calculateOperationPreview";
@@ -52,8 +51,6 @@ export default function ClearingOperationTable({
 
   onCreatePerson,
   onEditPerson,
-  onCreateCompany,
-  onEditCompany,
 }) {
   const rows = [
     {
@@ -109,7 +106,7 @@ export default function ClearingOperationTable({
     () => [
       {
         title: "Имя",
-        width: 260,
+        width: 140,
         render: (_, row) => {
           const rowDraft = getRowDraft(row);
 
@@ -136,36 +133,8 @@ export default function ClearingOperationTable({
       },
 
       {
-        title: "Фирма прихода",
-        width: 300,
-        render: (_, row) => {
-          const rowDraft = getRowDraft(row);
-
-          return (
-            <ClearingCompanyField
-              value={rowDraft.sender_company_id}
-              onChange={(value) => changeValue(row, "sender_company_id", value)}
-              onCreate={() =>
-                onCreateCompany({
-                  side: "sender",
-                  row,
-                })
-              }
-              onEdit={(companyId) =>
-                onEditCompany({
-                  companyId,
-                  side: "sender",
-                  row,
-                })
-              }
-            />
-          );
-        },
-      },
-
-      {
         title: "Сумма прихода",
-        width: 180,
+        width: 140,
         render: (_, row) => {
           const rowDraft = getRowDraft(row);
 
@@ -185,7 +154,7 @@ export default function ClearingOperationTable({
 
       {
         title: "Комиссия прихода, %",
-        width: 150,
+        width: 100,
         render: (_, row) => {
           const rowDraft = getRowDraft(row);
 
@@ -204,20 +173,24 @@ export default function ClearingOperationTable({
 
       {
         title: "Курс прихода",
-        width: 170,
+        width: 100,
         render: (_, row) => {
           const rowDraft = getRowDraft(row);
 
           return (
             <InputNumber
-              min={0.01}
               precision={2}
               style={{ width: "100%" }}
-              placeholder="Например: 12 050"
               value={getInputValue(rowDraft.incoming_usd_rate)}
               formatter={moneyFormatter}
               parser={moneyParser}
-              onChange={(value) => changeValue(row, "incoming_usd_rate", value)}
+              onChange={(value) =>
+                changeValue(
+                  row,
+                  "incoming_usd_rate",
+                  Number(value) > 0 ? value : null
+                )
+              }
             />
           );
         },
@@ -225,7 +198,7 @@ export default function ClearingOperationTable({
 
       {
         title: "Сумма к выдаче",
-        width: 210,
+        width: 120,
         render: (_, row) => {
           const calculated = getCalculated(row);
 
@@ -243,7 +216,7 @@ export default function ClearingOperationTable({
 
       {
         title: "Кому",
-        width: 260,
+        width: 140,
         render: (_, row) => {
           const rowDraft = getRowDraft(row);
 
@@ -272,38 +245,8 @@ export default function ClearingOperationTable({
       },
 
       {
-        title: "Фирма получения",
-        width: 300,
-        render: (_, row) => {
-          const rowDraft = getRowDraft(row);
-
-          return (
-            <ClearingCompanyField
-              value={rowDraft.receiver_company_id}
-              onChange={(value) =>
-                changeValue(row, "receiver_company_id", value)
-              }
-              onCreate={() =>
-                onCreateCompany({
-                  side: "receiver",
-                  row,
-                })
-              }
-              onEdit={(companyId) =>
-                onEditCompany({
-                  companyId,
-                  side: "receiver",
-                  row,
-                })
-              }
-            />
-          );
-        },
-      },
-
-      {
         title: "Комиссия получения, %",
-        width: 170,
+        width: 100,
         render: (_, row) => {
           const rowDraft = getRowDraft(row);
 
@@ -322,20 +265,24 @@ export default function ClearingOperationTable({
 
       {
         title: "Курс получения",
-        width: 170,
+        width: 100,
         render: (_, row) => {
           const rowDraft = getRowDraft(row);
 
           return (
             <InputNumber
-              min={0.01}
               precision={2}
               style={{ width: "100%" }}
-              placeholder="Например: 12 100"
               value={getInputValue(rowDraft.outgoing_usd_rate)}
               formatter={moneyFormatter}
               parser={moneyParser}
-              onChange={(value) => changeValue(row, "outgoing_usd_rate", value)}
+              onChange={(value) =>
+                changeValue(
+                  row,
+                  "outgoing_usd_rate",
+                  Number(value) > 0 ? value : null
+                )
+              }
             />
           );
         },
@@ -343,7 +290,7 @@ export default function ClearingOperationTable({
 
       {
         title: "Сумма получения",
-        width: 210,
+        width: 140,
         render: (_, row) => {
           const calculated = getCalculated(row);
 
@@ -362,26 +309,8 @@ export default function ClearingOperationTable({
       },
 
       {
-        title: "Комментарий",
-        width: 240,
-        render: (_, row) => {
-          const rowDraft = getRowDraft(row);
-
-          return (
-            <Input
-              value={rowDraft.comment}
-              placeholder="Комментарий"
-              onChange={(event) =>
-                changeValue(row, "comment", event.target.value)
-              }
-            />
-          );
-        },
-      },
-
-      {
-        title: "Действия",
-        width: 210,
+        title: "Сохранить",
+        width: 100,
         render: (_, row) => (
           <Space>
             <Button
@@ -396,7 +325,7 @@ export default function ClearingOperationTable({
             {!row.isNew && (
               <Popconfirm
                 title="Удалить операцию?"
-                description={"Операция исчезнет из взаиморасчётов."}
+                description="Операция исчезнет из взаиморасчётов."
                 okText="Удалить"
                 cancelText="Отмена"
                 okButtonProps={{
@@ -414,6 +343,24 @@ export default function ClearingOperationTable({
           </Space>
         ),
       },
+
+      {
+        title: "Комментарий",
+        width: 200,
+        render: (_, row) => {
+          const rowDraft = getRowDraft(row);
+
+          return (
+            <Input
+              value={rowDraft.comment}
+              placeholder="Комментарий"
+              onChange={(event) =>
+                changeValue(row, "comment", event.target.value)
+              }
+            />
+          );
+        },
+      },
     ],
     [
       draft,
@@ -427,8 +374,6 @@ export default function ClearingOperationTable({
       onRowChange,
       onCreatePerson,
       onEditPerson,
-      onCreateCompany,
-      onEditCompany,
     ]
   );
 
@@ -439,7 +384,7 @@ export default function ClearingOperationTable({
       dataSource={rows}
       pagination={false}
       scroll={{
-        x: 2800,
+        x: 2200,
       }}
     />
   );

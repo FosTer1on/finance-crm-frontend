@@ -20,13 +20,13 @@ const items = [
     title: "К выдаче",
   },
   {
-    key: "outgoing_commission_total",
-    title: "Комиссия получения",
-  },
-  {
     key: "amount_to_receive_total",
     usdKey: "amount_to_receive_usd_total",
     title: "К получению",
+  },
+  {
+    key: "outgoing_commission_total",
+    title: "Комиссия получения",
   },
   {
     key: "profit_uzs",

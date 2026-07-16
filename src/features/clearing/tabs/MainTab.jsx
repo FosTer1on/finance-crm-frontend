@@ -19,7 +19,6 @@ import ClearingSummary from "@/features/clearing/components/ClearingSummary";
 import ClearingPeopleBalances from "@/features/clearing/components/ClearingPeopleBalances";
 
 import ClearingPersonModal from "@/features/clearing/modals/ClearingPersonModal";
-import ClearingCompanyModal from "@/features/clearing/modals/ClearingCompanyModal";
 
 dayjs.locale("ru");
 
@@ -27,14 +26,12 @@ const { Text } = Typography;
 
 const createEmptyDraft = () => ({
   sender_person_id: null,
-  sender_company_id: null,
 
   incoming_amount: null,
   incoming_percent: null,
   incoming_usd_rate: null,
 
   receiver_person_id: null,
-  receiver_company_id: null,
 
   outgoing_percent: null,
   outgoing_usd_rate: null,
@@ -49,14 +46,6 @@ const emptyPersonForm = {
   is_active: true,
 };
 
-const emptyCompanyForm = {
-  id: null,
-  name: "",
-  inn: "",
-  comment: "",
-  is_active: true,
-};
-
 export default function MainTab() {
   const [selectedDate, setSelectedDate] = useState(dayjs());
 
@@ -64,24 +53,17 @@ export default function MainTab() {
   const [drafts, setDrafts] = useState({});
 
   const [personModal, setPersonModal] = useState(null);
-  const [companyModal, setCompanyModal] = useState(null);
 
   const {
     people,
-    companies,
 
     isLoadingPeople,
-    isLoadingCompanies,
     isSubmitting: isDirectorySubmitting,
     error: directoryError,
 
     loadPeople,
-    loadCompanies,
-
     createPerson,
     updatePerson,
-    createCompany,
-    updateCompany,
 
     clearDirectories,
   } = useClearingDirectoryStore();
@@ -106,12 +88,12 @@ export default function MainTab() {
   const dateValue = selectedDate.format("YYYY-MM-DD");
 
   useEffect(() => {
-    Promise.all([loadPeople(), loadCompanies()]);
+    loadPeople();
 
     return () => {
       clearDirectories();
     };
-  }, [loadPeople, loadCompanies, clearDirectories]);
+  }, [loadPeople, clearDirectories]);
 
   useEffect(() => {
     loadOperations({
@@ -129,18 +111,16 @@ export default function MainTab() {
     operations.forEach((operation) => {
       nextDrafts[operation.id] = {
         sender_person_id: operation.sender_person,
-        sender_company_id: operation.sender_company,
-
+    
         incoming_amount: operation.incoming_amount,
         incoming_percent: operation.incoming_percent,
         incoming_usd_rate: operation.incoming_usd_rate,
-
+    
         receiver_person_id: operation.receiver_person,
-        receiver_company_id: operation.receiver_company,
-
+    
         outgoing_percent: operation.outgoing_percent,
         outgoing_usd_rate: operation.outgoing_usd_rate,
-
+    
         comment: operation.comment || "",
       };
     });
@@ -198,35 +178,42 @@ export default function MainTab() {
     return true;
   };
 
+  const normalizeOptionalRate = (value) => {
+    if (
+      value === null ||
+      value === undefined ||
+      value === "" ||
+      Number(value) <= 0
+    ) {
+      return null;
+    }
+  
+    return value;
+  };
+
   const buildOperationPayload = (form) => ({
     operation_date: dateValue,
   
     sender_person_id: form.sender_person_id,
-    sender_company_id: form.sender_company_id || null,
+    sender_company_id: null,
   
     incoming_amount: form.incoming_amount,
     incoming_percent: form.incoming_percent,
-    incoming_usd_rate:
-      form.incoming_usd_rate === null ||
-      form.incoming_usd_rate === undefined ||
-      form.incoming_usd_rate === ""
-        ? null
-        : form.incoming_usd_rate,
+    incoming_usd_rate: normalizeOptionalRate(
+      form.incoming_usd_rate
+    ),
   
     receiver_person_id: form.receiver_person_id,
-    receiver_company_id: form.receiver_company_id || null,
+    receiver_company_id: null,
   
     outgoing_percent: form.outgoing_percent,
-    outgoing_usd_rate:
-      form.outgoing_usd_rate === null ||
-      form.outgoing_usd_rate === undefined ||
-      form.outgoing_usd_rate === ""
-        ? null
-        : form.outgoing_usd_rate,
+    outgoing_usd_rate: normalizeOptionalRate(
+      form.outgoing_usd_rate
+    ),
   
     comment: form.comment || "",
   });
-
+  
   const handleCreateOperation = async () => {
     if (!validateOperation(draft)) return;
 
@@ -336,89 +323,9 @@ export default function MainTab() {
     setPersonModal(null);
   };
 
-  const applyCompanyToTarget = (target, companyId) => {
-    const field =
-      target.side === "sender" ? "sender_company_id" : "receiver_company_id";
-
-    if (target.row.isNew) {
-      updateDraft(field, companyId);
-    } else {
-      updateRowDraft(target.row.id, field, companyId);
-    }
-  };
-
-  const openCreateCompany = ({ side, row }) => {
-    setCompanyModal({
-      mode: "create",
-      target: {
-        side,
-        row,
-      },
-      form: {
-        ...emptyCompanyForm,
-      },
-    });
-  };
-
-  const openEditCompany = ({ companyId, side, row }) => {
-    const company = companies.find((item) => item.id === companyId);
-
-    if (!company) {
-      message.error("Фирма не найдена");
-      return;
-    }
-
-    setCompanyModal({
-      mode: "edit",
-      target: {
-        side,
-        row,
-      },
-      form: {
-        id: company.id,
-        name: company.name || "",
-        inn: company.inn || "",
-        comment: company.comment || "",
-        is_active: company.is_active ?? true,
-      },
-    });
-  };
-
-  const handleSaveCompany = async () => {
-    const name = companyModal?.form?.name?.trim();
-
-    if (!name) {
-      message.error("Введите название фирмы");
-      return;
-    }
-
-    const payload = {
-      name,
-      inn: companyModal.form.inn || "",
-      comment: companyModal.form.comment || "",
-      is_active: companyModal.form.is_active ?? true,
-    };
-
-    let savedCompany;
-
-    if (companyModal.mode === "edit") {
-      savedCompany = await updateCompany(companyModal.form.id, payload);
-
-      message.success("Фирма обновлена");
-    } else {
-      savedCompany = await createCompany(payload);
-
-      message.success("Фирма создана");
-    }
-
-    applyCompanyToTarget(companyModal.target, savedCompany.id);
-
-    setCompanyModal(null);
-  };
-
   const pageError = error || directoryError;
 
-  const directoriesLoading = isLoadingPeople || isLoadingCompanies;
+  const directoriesLoading = isLoadingPeople;
 
   return (
     <Space direction="vertical" size="middle" style={{ width: "100%" }}>
@@ -471,8 +378,6 @@ export default function MainTab() {
             onDelete={handleDeleteOperation}
             onCreatePerson={openCreatePerson}
             onEditPerson={openEditPerson}
-            onCreateCompany={openCreateCompany}
-            onEditCompany={openEditCompany}
           />
 
           <ClearingSummary summary={summary} />
@@ -503,27 +408,6 @@ export default function MainTab() {
         onSave={handleSavePerson}
       />
 
-      <ClearingCompanyModal
-        open={Boolean(companyModal)}
-        title={
-          companyModal?.mode === "edit"
-            ? "Редактировать фирму"
-            : "Добавить фирму"
-        }
-        form={companyModal?.form || emptyCompanyForm}
-        loading={isDirectorySubmitting}
-        onCancel={() => setCompanyModal(null)}
-        onChange={(field, value) =>
-          setCompanyModal((prev) => ({
-            ...prev,
-            form: {
-              ...prev.form,
-              [field]: value,
-            },
-          }))
-        }
-        onSave={handleSaveCompany}
-      />
     </Space>
   );
 }
