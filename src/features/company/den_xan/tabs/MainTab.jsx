@@ -20,6 +20,7 @@ import AddIncomingModal from "../modals/AddIncomingModal";
 import CreatePartnerModal from "../modals/CreatePartnerModal";
 import PartnerInfoModal from "../modals/PartnerInfoModal";
 import DenXanRates from "../components/DenXanRates";
+import { useDenXanExpenseStore } from "@/store/denXanExpense/denXanExpenseStore";
 
 const { Text } = Typography;
 
@@ -60,6 +61,10 @@ export default function MainTab({ company, onAfterChange }) {
     updatePartner,
     isSubmitting: isPartnerSubmitting,
   } = usePartnerStore();
+
+  const reloadCurrentExpenses = useDenXanExpenseStore(
+    (state) => state.reloadCurrentExpenses
+  );
 
   const dateValue = selectedDate.format("YYYY-MM-DD");
 
@@ -114,26 +119,34 @@ export default function MainTab({ company, onAfterChange }) {
 
   const handleSaveIncoming = async (row) => {
     const draft = drafts[row.id];
-
+  
     await saveIncoming(row.id, {
       total_amount: draft?.total_amount || "0",
       mtg_amount: draft?.mtg_amount || "0",
-      service_percent: draft?.service_percent || "6.00",
+      service_percent:
+        draft?.service_percent || "6.00",
     });
-
+  
+    await reloadCurrentExpenses();
+  
     message.success("Приход сохранён");
     onAfterChange?.();
   };
 
   const handleSaveOutgoing = async (row) => {
     const draft = drafts[row.id];
-
+  
     await saveOutgoing(row.id, {
-      outgoing_amount: draft?.outgoing_amount || "0",
-      outgoing_percent: draft?.outgoing_percent || "9.00",
-      outgoing_partner_id: draft?.outgoing_partner_id || null,
+      outgoing_amount:
+        draft?.outgoing_amount || "0",
+      outgoing_percent:
+        draft?.outgoing_percent || "9.00",
+      outgoing_partner_id:
+        draft?.outgoing_partner_id || null,
     });
-
+  
+    await reloadCurrentExpenses();
+  
     message.success("Исход сохранён");
     onAfterChange?.();
   };
@@ -153,12 +166,15 @@ export default function MainTab({ company, onAfterChange }) {
 
   const handleAddIncoming = async () => {
     if (!addModal) return;
-
+  
     await addIncoming(addModal.row.id, {
       add_amount: addModal.add_amount || "0",
-      add_mtg_amount: addModal.add_mtg_amount || "0",
+      add_mtg_amount:
+        addModal.add_mtg_amount || "0",
     });
-
+  
+    await reloadCurrentExpenses();
+  
     setAddModal(null);
     message.success("Сумма добавлена");
     onAfterChange?.();

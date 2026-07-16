@@ -9,27 +9,52 @@ import {
 export const useDenXanExpenseStore = create((set, get) => ({
   expenses: [],
   summary: null,
+  currentQuery: null,
   isLoading: false,
   isSubmitting: false,
   error: null,
 
   loadExpenses: async (params) => {
-    set({ isLoading: true, error: null });
-
+    set({
+      isLoading: true,
+      error: null,
+      currentQuery: params,
+    });
+  
     try {
       const data = await getDenXanExpenses(params);
-
+  
       set({
         expenses: data.expenses || [],
         summary: data.summary || null,
         isLoading: false,
       });
+  
+      return data;
     } catch (error) {
       set({
-        error: error?.response?.data || "Ошибка загрузки расходов",
+        error:
+          error?.response?.data ||
+          "Ошибка загрузки расходов",
         isLoading: false,
       });
+  
+      throw error;
     }
+  },
+
+  reloadCurrentExpenses: async () => {
+    const query = get().currentQuery;
+  
+    if (
+      !query?.company ||
+      !query?.date_from ||
+      !query?.date_to
+    ) {
+      return null;
+    }
+  
+    return get().loadExpenses(query);
   },
 
   createExpense: async (payload) => {
@@ -80,6 +105,7 @@ export const useDenXanExpenseStore = create((set, get) => ({
     set({
       expenses: [],
       summary: null,
+      currentQuery: null,
       error: null,
     });
   },
