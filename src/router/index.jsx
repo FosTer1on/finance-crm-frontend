@@ -1,9 +1,19 @@
+import { Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
+
 import MainLayout from "../layouts/MainLayout";
-import CompaniesPage from "../pages/CompaniesPage";
-import CompanyPage from "../pages/CompanyPage";
-import NotFoundPage from "../pages/NotFoundPage";
-import ClearingPage from "../pages/ClearingPage";
+import PageLoader from "@/components/layout/PageLoader";
+
+import {
+  ClearingPage,
+  CompaniesPage,
+  CompanyPage,
+  NotFoundPage,
+} from "./LazyPages";
+
+const withSuspense = (element) => (
+  <Suspense fallback={<PageLoader />}>{element}</Suspense>
+);
 
 export const router = createBrowserRouter([
   {
@@ -12,20 +22,20 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <CompaniesPage />,
+        element: withSuspense(<CompaniesPage />),
       },
       {
         path: "companies/:id",
-        element: <CompanyPage />,
+        element: withSuspense(<CompanyPage />),
       },
       {
         path: "clearing",
-        element: <ClearingPage />,
+        element: withSuspense(<ClearingPage />),
       },
     ],
   },
   {
     path: "*",
-    element: <NotFoundPage />,
+    element: withSuspense(<NotFoundPage />),
   },
 ]);
