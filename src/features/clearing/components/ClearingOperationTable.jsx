@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import {
   Button,
   Input,
@@ -102,8 +101,7 @@ export default function ClearingOperationTable({
     }
   };
 
-  const columns = useMemo(
-    () => [
+  const columns = [
       {
         title: "Имя",
         width: 140,
@@ -361,21 +359,7 @@ export default function ClearingOperationTable({
           );
         },
       },
-    ],
-    [
-      draft,
-      drafts,
-      operations,
-      isSubmitting,
-      onCreate,
-      onUpdate,
-      onDelete,
-      onDraftChange,
-      onRowChange,
-      onCreatePerson,
-      onEditPerson,
-    ]
-  );
+    ];
 
   return (
     <Table

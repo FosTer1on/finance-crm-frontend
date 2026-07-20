@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Card,
@@ -24,6 +24,15 @@ import { useDenXanExpenseStore } from "@/store/denXanExpense/denXanExpenseStore"
 
 const { Text } = Typography;
 
+const rowToDraft = (row, defaultPartnerId = null) => ({
+  total_amount: row.total_amount,
+  service_percent: row.service_percent,
+  mtg_amount: row.mtg_amount,
+  outgoing_amount: row.outgoing_amount,
+  outgoing_percent: row.outgoing_percent,
+  outgoing_partner_id: row.outgoing_partner || defaultPartnerId,
+});
+
 export default function MainTab({ company, onAfterChange }) {
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [drafts, setDrafts] = useState({});
@@ -31,10 +40,7 @@ export default function MainTab({ company, onAfterChange }) {
   const [addModal, setAddModal] = useState(null);
   const [partnerModal, setPartnerModal] = useState(null);
   const [partnerInfoModal, setPartnerInfoModal] = useState(null);
-  const [rateDraft, setRateDraft] = useState({
-    den_xan_rate: null,
-    street_rate: null,
-  });
+  const [rateDraft, setRateDraft] = useState({});
 
   const {
     day,
@@ -79,38 +85,37 @@ export default function MainTab({ company, onAfterChange }) {
     };
   }, [company?.id, dateValue, loadDaily, loadPartners, clearPartners]);
 
-  useEffect(() => {
-    setRateDraft({
-      den_xan_rate: day?.den_xan_rate ?? null,
-      street_rate: day?.street_rate ?? null,
-    });
-  }, [day]);
+  const defaultPartnerId =
+    partners.find((partner) => partner.is_default)?.id || null;
 
-  useEffect(() => {
-    const nextDrafts = {};
+  const resolvedRates = {
+    den_xan_rate: rateDraft.den_xan_rate ?? day?.den_xan_rate ?? null,
+    street_rate: rateDraft.street_rate ?? day?.street_rate ?? null,
+  };
 
-    const defaultPartner = partners.find(
-      (partner) => partner.is_default
-    );
-
-    rows.forEach((row) => {
-      nextDrafts[row.id] = {
-        total_amount: row.total_amount,
-        service_percent: row.service_percent,
-        mtg_amount: row.mtg_amount,
-        outgoing_amount: row.outgoing_amount,
-        outgoing_percent: row.outgoing_percent,
-        outgoing_partner_id: row.outgoing_partner || defaultPartner?.id || null,
-      };
-    });
-
-    setDrafts(nextDrafts);
-  }, [rows, partners]);
+  const resolvedDrafts = useMemo(
+    () =>
+      Object.fromEntries(
+        rows.map((row) => [
+          row.id,
+          {
+            ...rowToDraft(row, defaultPartnerId),
+            ...drafts[row.id],
+          },
+        ])
+      ),
+    [rows, drafts, defaultPartnerId]
+  );
 
   const updateDraft = (rowId, field, value) => {
+    const row = rows.find((item) => item.id === rowId);
+  
+    if (!row) return;
+  
     setDrafts((prev) => ({
       ...prev,
       [rowId]: {
+        ...rowToDraft(row, defaultPartnerId),
         ...prev[rowId],
         [field]: value ?? "0",
       },
@@ -118,35 +123,43 @@ export default function MainTab({ company, onAfterChange }) {
   };
 
   const handleSaveIncoming = async (row) => {
-    const draft = drafts[row.id];
-  
+    const draft = resolvedDrafts[row.id];
+
     await saveIncoming(row.id, {
       total_amount: draft?.total_amount || "0",
       mtg_amount: draft?.mtg_amount || "0",
-      service_percent:
-        draft?.service_percent || "6.00",
+      service_percent: draft?.service_percent || "6.00",
     });
-  
+
     await reloadCurrentExpenses();
-  
+
+    setDrafts((prev) => {
+      const next = { ...prev };
+      delete next[row.id];
+      return next;
+    });
+
     message.success("Приход сохранён");
     onAfterChange?.();
   };
 
   const handleSaveOutgoing = async (row) => {
-    const draft = drafts[row.id];
-  
+    const draft = resolvedDrafts[row.id];
+
     await saveOutgoing(row.id, {
-      outgoing_amount:
-        draft?.outgoing_amount || "0",
-      outgoing_percent:
-        draft?.outgoing_percent || "9.00",
-      outgoing_partner_id:
-        draft?.outgoing_partner_id || null,
+      outgoing_amount: draft?.outgoing_amount || "0",
+      outgoing_percent: draft?.outgoing_percent || "9.00",
+      outgoing_partner_id: draft?.outgoing_partner_id || null,
     });
-  
+
     await reloadCurrentExpenses();
-  
+
+    setDrafts((prev) => {
+      const next = { ...prev };
+      delete next[row.id];
+      return next;
+    });
+
     message.success("Исход сохранён");
     onAfterChange?.();
   };
@@ -166,15 +179,14 @@ export default function MainTab({ company, onAfterChange }) {
 
   const handleAddIncoming = async () => {
     if (!addModal) return;
-  
+
     await addIncoming(addModal.row.id, {
       add_amount: addModal.add_amount || "0",
-      add_mtg_amount:
-        addModal.add_mtg_amount || "0",
+      add_mtg_amount: addModal.add_mtg_amount || "0",
     });
-  
+
     await reloadCurrentExpenses();
-  
+
     setAddModal(null);
     message.success("Сумма добавлена");
     onAfterChange?.();
@@ -223,15 +235,14 @@ export default function MainTab({ company, onAfterChange }) {
       return;
     }
 
-    if (!rateDraft.den_xan_rate || !rateDraft.street_rate) {
+    if (!resolvedRates.den_xan_rate || !resolvedRates.street_rate) {
       message.error("Введите оба курса");
       return;
     }
-
-    await saveRates(day.id, {
-      den_xan_rate: rateDraft.den_xan_rate,
-      street_rate: rateDraft.street_rate,
-    });
+    
+    await saveRates(day.id, resolvedRates);
+    
+    setRateDraft({});
 
     message.success("Курсы сохранены");
   };
@@ -256,12 +267,16 @@ export default function MainTab({ company, onAfterChange }) {
             value={selectedDate}
             format="YYYY-MM-DD"
             onChange={(value) => {
-              if (value) setSelectedDate(value);
+              if (!value) return;
+            
+              setSelectedDate(value);
+              setDrafts({});
+              setRateDraft({});
             }}
           />
         </Space>
         <DenXanRates
-          rates={rateDraft}
+          rates={resolvedRates}
           loading={isSubmitting}
           onChange={(field, value) =>
             setRateDraft((prev) => ({
@@ -276,7 +291,7 @@ export default function MainTab({ company, onAfterChange }) {
       <Card title={date ? dayjs(date).format("D MMMM") : "День"}>
         <DenXanTable
           rows={rows}
-          drafts={drafts}
+          drafts={resolvedDrafts}
           partners={partners}
           isSubmitting={isSubmitting}
           updateDraft={updateDraft}

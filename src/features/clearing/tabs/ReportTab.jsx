@@ -16,12 +16,12 @@ import OperationsReportTable from "../components/report/OperationsReportTable";
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
 
-export default function ReportTab() {
-  const initialPeriod = getReportPeriod(REPORT_PERIODS.MONTH);
+const INITIAL_PERIOD = getReportPeriod(REPORT_PERIODS.MONTH);
 
+export default function ReportTab() {
   const [periodType, setPeriodType] = useState(REPORT_PERIODS.MONTH);
-  const [dateFrom, setDateFrom] = useState(initialPeriod.dateFrom);
-  const [dateTo, setDateTo] = useState(initialPeriod.dateTo);
+  const [dateFrom, setDateFrom] = useState(INITIAL_PERIOD.dateFrom);
+  const [dateTo, setDateTo] = useState(INITIAL_PERIOD.dateTo);
 
   const { report, isLoading, error, loadReport, clearReport } =
     useClearingReportStore();
@@ -40,12 +40,17 @@ export default function ReportTab() {
   };
 
   useEffect(() => {
-    loadData();
+    loadReport(
+      serializeReportPeriod({
+        dateFrom: INITIAL_PERIOD.dateFrom,
+        dateTo: INITIAL_PERIOD.dateTo,
+      })
+    );
 
     return () => {
       clearReport();
     };
-  }, []);
+  }, [loadReport, clearReport]);
 
   const handleQuickPeriod = async (type) => {
     const period = getReportPeriod(type);

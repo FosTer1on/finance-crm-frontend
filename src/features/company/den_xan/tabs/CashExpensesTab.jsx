@@ -1,11 +1,5 @@
-import { useEffect, useState } from "react";
-import {
-  Alert,
-  Card,
-  Space,
-  Spin,
-  message,
-} from "antd";
+import { useEffect, useMemo, useState } from "react";
+import { Alert, Card, Space, Spin, message } from "antd";
 import dayjs from "dayjs";
 
 import { useDenXanCashStore } from "@/store/denXanCash/denXanCashStore";
@@ -21,6 +15,13 @@ const createEmptyDraft = () => ({
   amount: null,
   operation_date: dayjs().format("YYYY-MM-DD"),
   comment: "",
+});
+
+const operationToDraft = (operation) => ({
+  name: operation.name,
+  amount: operation.amount,
+  operation_date: operation.operation_date,
+  comment: operation.comment || "",
 });
 
 export default function CashExpensesTab({ company }) {
@@ -48,7 +49,7 @@ export default function CashExpensesTab({ company }) {
   const dateFrom = period?.[0]?.format("YYYY-MM-DD");
   const dateTo = period?.[1]?.format("YYYY-MM-DD");
 
-  const loadData = () => {
+  useEffect(() => {
     if (!company?.id) return;
 
     loadCash({
@@ -56,30 +57,25 @@ export default function CashExpensesTab({ company }) {
       ...(dateFrom ? { date_from: dateFrom } : {}),
       ...(dateTo ? { date_to: dateTo } : {}),
     });
-  };
-
-  useEffect(() => {
-    loadData();
 
     return () => {
       clearCash();
     };
-  }, [company?.id, dateFrom, dateTo]);
+  }, [company?.id, dateFrom, dateTo, loadCash, clearCash]);
 
-  useEffect(() => {
-    const nextDrafts = {};
-
-    operations.forEach((operation) => {
-      nextDrafts[operation.id] = {
-        name: operation.name,
-        amount: operation.amount,
-        operation_date: operation.operation_date,
-        comment: operation.comment || "",
-      };
-    });
-
-    setDrafts(nextDrafts);
-  }, [operations]);
+  const resolvedDrafts = useMemo(
+    () =>
+      Object.fromEntries(
+        operations.map((operation) => [
+          operation.id,
+          {
+            ...operationToDraft(operation),
+            ...drafts[operation.id],
+          },
+        ])
+      ),
+    [operations, drafts]
+  );
 
   const updateDraft = (field, value) => {
     setDraft((prev) => ({
@@ -89,9 +85,14 @@ export default function CashExpensesTab({ company }) {
   };
 
   const updateRowDraft = (rowId, field, value) => {
+    const operation = operations.find((item) => item.id === rowId);
+  
+    if (!operation) return;
+  
     setDrafts((prev) => ({
       ...prev,
       [rowId]: {
+        ...operationToDraft(operation),
         ...prev[rowId],
         [field]: value,
       },
@@ -132,7 +133,7 @@ export default function CashExpensesTab({ company }) {
   };
 
   const handleUpdate = async (row) => {
-    const rowDraft = drafts[row.id];
+    const rowDraft = resolvedDrafts[row.id];
 
     if (!rowDraft?.name?.trim()) {
       message.error("Введите название операции");
@@ -152,6 +153,12 @@ export default function CashExpensesTab({ company }) {
       name: rowDraft.name.trim(),
       amount: rowDraft.amount,
       comment: rowDraft.comment || "",
+    });
+
+    setDrafts((prev) => {
+      const next = { ...prev };
+      delete next[row.id];
+      return next;
     });
 
     message.success("Кэш-операция обновлена");
@@ -184,6 +191,7 @@ export default function CashExpensesTab({ company }) {
         onChange={({ range, preset }) => {
           setPeriod(range);
           setActivePreset(preset);
+          setDrafts({});
         }}
       />
 
@@ -193,7 +201,7 @@ export default function CashExpensesTab({ company }) {
         <DenXanCashTable
           operations={operations}
           draft={draft}
-          drafts={drafts}
+          drafts={resolvedDrafts}
           isSubmitting={isSubmitting}
           onDraftChange={updateDraft}
           onRowChange={updateRowDraft}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Card,
@@ -45,6 +45,21 @@ const emptyPersonForm = {
   comment: "",
   is_active: true,
 };
+
+const operationToDraft = (operation) => ({
+  sender_person_id: operation.sender_person,
+
+  incoming_amount: operation.incoming_amount,
+  incoming_percent: operation.incoming_percent,
+  incoming_usd_rate: operation.incoming_usd_rate,
+
+  receiver_person_id: operation.receiver_person,
+
+  outgoing_percent: operation.outgoing_percent,
+  outgoing_usd_rate: operation.outgoing_usd_rate,
+
+  comment: operation.comment || "",
+});
 
 export default function MainTab() {
   const [selectedDate, setSelectedDate] = useState(dayjs());
@@ -105,28 +120,19 @@ export default function MainTab() {
     };
   }, [dateValue, loadOperations, clearOperations]);
 
-  useEffect(() => {
-    const nextDrafts = {};
-
-    operations.forEach((operation) => {
-      nextDrafts[operation.id] = {
-        sender_person_id: operation.sender_person,
-    
-        incoming_amount: operation.incoming_amount,
-        incoming_percent: operation.incoming_percent,
-        incoming_usd_rate: operation.incoming_usd_rate,
-    
-        receiver_person_id: operation.receiver_person,
-    
-        outgoing_percent: operation.outgoing_percent,
-        outgoing_usd_rate: operation.outgoing_usd_rate,
-    
-        comment: operation.comment || "",
-      };
-    });
-
-    setDrafts(nextDrafts);
-  }, [operations]);
+  const resolvedDrafts = useMemo(
+    () =>
+      Object.fromEntries(
+        operations.map((operation) => [
+          operation.id,
+          {
+            ...operationToDraft(operation),
+            ...drafts[operation.id],
+          },
+        ])
+      ),
+    [operations, drafts]
+  );
 
   const updateDraft = (field, value) => {
     setDraft((prev) => ({
@@ -136,9 +142,14 @@ export default function MainTab() {
   };
 
   const updateRowDraft = (rowId, field, value) => {
+    const operation = operations.find((item) => item.id === rowId);
+
+    if (!operation) return;
+
     setDrafts((prev) => ({
       ...prev,
       [rowId]: {
+        ...operationToDraft(operation),
         ...prev[rowId],
         [field]: value,
       },
@@ -187,33 +198,29 @@ export default function MainTab() {
     ) {
       return null;
     }
-  
+
     return value;
   };
 
   const buildOperationPayload = (form) => ({
     operation_date: dateValue,
-  
+
     sender_person_id: form.sender_person_id,
     sender_company_id: null,
-  
+
     incoming_amount: form.incoming_amount,
     incoming_percent: form.incoming_percent,
-    incoming_usd_rate: normalizeOptionalRate(
-      form.incoming_usd_rate
-    ),
-  
+    incoming_usd_rate: normalizeOptionalRate(form.incoming_usd_rate),
+
     receiver_person_id: form.receiver_person_id,
     receiver_company_id: null,
-  
+
     outgoing_percent: form.outgoing_percent,
-    outgoing_usd_rate: normalizeOptionalRate(
-      form.outgoing_usd_rate
-    ),
-  
+    outgoing_usd_rate: normalizeOptionalRate(form.outgoing_usd_rate),
+
     comment: form.comment || "",
   });
-  
+
   const handleCreateOperation = async () => {
     if (!validateOperation(draft)) return;
 
@@ -225,7 +232,7 @@ export default function MainTab() {
   };
 
   const handleUpdateOperation = async (row) => {
-    const rowDraft = drafts[row.id];
+    const rowDraft = resolvedDrafts[row.id];
 
     if (!rowDraft) {
       message.error("Данные операции не найдены");
@@ -235,6 +242,12 @@ export default function MainTab() {
     if (!validateOperation(rowDraft)) return;
 
     await updateOperation(row.id, buildOperationPayload(rowDraft));
+
+    setDrafts((prev) => {
+      const next = { ...prev };
+      delete next[row.id];
+      return next;
+    });
 
     message.success("Операция обновлена");
   };
@@ -355,6 +368,7 @@ export default function MainTab() {
 
               setSelectedDate(value);
               setDraft(createEmptyDraft());
+              setDrafts({});
             }}
           />
 
@@ -369,7 +383,7 @@ export default function MainTab() {
           <ClearingOperationTable
             operations={operations}
             draft={draft}
-            drafts={drafts}
+            drafts={resolvedDrafts}
             isSubmitting={isSubmitting}
             onDraftChange={updateDraft}
             onRowChange={updateRowDraft}
@@ -407,7 +421,6 @@ export default function MainTab() {
         }
         onSave={handleSavePerson}
       />
-
     </Space>
   );
 }

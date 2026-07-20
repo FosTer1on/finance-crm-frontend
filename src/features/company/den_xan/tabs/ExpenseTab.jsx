@@ -1,14 +1,5 @@
-import { useEffect, useState } from "react";
-import {
-  Alert,
-  Card,
-  DatePicker,
-  Select,
-  Space,
-  Spin,
-  Typography,
-  message,
-} from "antd";
+import { useEffect, useMemo, useState } from "react";
+import { Alert, Card, Space, Spin, message } from "antd";
 import dayjs from "dayjs";
 
 import { useDenXanExpenseStore } from "@/store/denXanExpense/denXanExpenseStore";
@@ -19,7 +10,12 @@ import DenXanExpenseGroups from "../components/DenXanExpenseGroups";
 import DenXanPeriodFilter from "../components/DenXanPeriodFilter";
 import { getPeriodRange } from "../utils/periodPresets";
 
-const { Text } = Typography;
+const expenseToDraft = (expense) => ({
+  name: expense.name,
+  amount: expense.amount,
+  expense_date: expense.expense_date,
+  comment: expense.comment || "",
+});
 
 export default function ExpenseTab({ company, onAfterChange }) {
   const [period, setPeriod] = useState(getPeriodRange("month"));
@@ -49,7 +45,6 @@ export default function ExpenseTab({ company, onAfterChange }) {
     loadExpenses,
     createExpense,
     updateExpense,
-    clearExpenses,
     deleteExpense,
   } = useDenXanExpenseStore();
 
@@ -57,7 +52,7 @@ export default function ExpenseTab({ company, onAfterChange }) {
     if (!company?.id || !dateFrom || !dateTo) {
       return;
     }
-  
+
     await loadExpenses({
       company: company.id,
       date_from: dateFrom,
@@ -75,35 +70,36 @@ export default function ExpenseTab({ company, onAfterChange }) {
     });
   }, [company?.id, dateFrom, dateTo, loadExpenses]);
 
-  useEffect(() => {
-    const nextDrafts = {};
-
-    expenses.forEach((expense) => {
-      nextDrafts[expense.id] = {
-        name: expense.name,
-        amount: expense.amount,
-        expense_date: expense.expense_date,
-        comment: expense.comment || "",
-      };
-    });
-
-    setDrafts(nextDrafts);
-  }, [expenses]);
+  const resolvedDrafts = useMemo(
+    () =>
+      Object.fromEntries(
+        expenses.map((expense) => [
+          expense.id,
+          {
+            ...expenseToDraft(expense),
+            ...drafts[expense.id],
+          },
+        ])
+      ),
+    [expenses, drafts]
+  );
 
   const updateDraft = (field, value) => {
     setDraft((prev) => ({
       ...prev,
-      [field]:
-        field === "amount"
-          ? value ?? null
-          : value ?? "",
+      [field]: field === "amount" ? value ?? null : value ?? "",
     }));
   };
 
   const updateRowDraft = (id, field, value) => {
+    const expense = expenses.find((item) => item.id === id);
+
+    if (!expense) return;
+
     setDrafts((prev) => ({
       ...prev,
       [id]: {
+        ...expenseToDraft(expense),
         ...prev[id],
         [field]: value ?? "",
       },
@@ -115,7 +111,7 @@ export default function ExpenseTab({ company, onAfterChange }) {
       message.error("Введите название расхода");
       return;
     }
-  
+
     if (
       draft.amount === null ||
       draft.amount === undefined ||
@@ -124,7 +120,7 @@ export default function ExpenseTab({ company, onAfterChange }) {
       message.error("Введите сумму расхода");
       return;
     }
-  
+
     await createExpense({
       company_id: company.id,
       name: draft.name.trim(),
@@ -132,17 +128,17 @@ export default function ExpenseTab({ company, onAfterChange }) {
       expense_date: draft.expense_date,
       comment: draft.comment || "",
     });
-  
+
     setDraft(createEmptyDraft());
-  
+
     message.success("Расход создан");
-  
+
     await loadData();
     onAfterChange?.();
   };
 
   const handleUpdate = async (row) => {
-    const rowDraft = drafts[row.id];
+    const rowDraft = resolvedDrafts[row.id];
 
     if (!rowDraft?.name?.trim()) {
       message.error("Введите название расхода");
@@ -155,8 +151,14 @@ export default function ExpenseTab({ company, onAfterChange }) {
       comment: rowDraft.comment || "",
     });
 
+    setDrafts((prev) => {
+      const next = { ...prev };
+      delete next[row.id];
+      return next;
+    });
+
     message.success("Расход обновлён");
-    loadData();
+    await loadData();
     onAfterChange?.();
   };
 
@@ -189,6 +191,7 @@ export default function ExpenseTab({ company, onAfterChange }) {
         onChange={({ range, preset }) => {
           setPeriod(range);
           setActivePreset(preset);
+          setDrafts({});
         }}
       />
 
@@ -196,7 +199,7 @@ export default function ExpenseTab({ company, onAfterChange }) {
         <DenXanExpenseTable
           expenses={expenses}
           draft={draft}
-          drafts={drafts}
+          drafts={resolvedDrafts}
           isSubmitting={isSubmitting}
           onDraftChange={updateDraft}
           onRowChange={updateRowDraft}

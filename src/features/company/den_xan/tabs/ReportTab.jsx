@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Alert, Button, Card, DatePicker, Space, Spin, Typography } from "antd";
-import dayjs from "dayjs";
 
 import { useDenXanReportStore } from "@/store/denXanReport/denXanReportStore";
 import {
@@ -16,13 +15,13 @@ import ExpensesReportTable from "../components/report/ExpensesReportTable";
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
 
+const INITIAL_PERIOD = getReportPeriod(REPORT_PERIODS.MONTH);
+
 export default function ReportTab({ company }) {
   const [periodType, setPeriodType] = useState(REPORT_PERIODS.MONTH);
 
-  const initialPeriod = getReportPeriod(REPORT_PERIODS.MONTH);
-
-  const [dateFrom, setDateFrom] = useState(initialPeriod.dateFrom);
-  const [dateTo, setDateTo] = useState(initialPeriod.dateTo);
+  const [dateFrom, setDateFrom] = useState(INITIAL_PERIOD.dateFrom);
+  const [dateTo, setDateTo] = useState(INITIAL_PERIOD.dateTo);
 
   const { report, isLoading, error, loadReport, clearReport } =
     useDenXanReportStore();
@@ -42,12 +41,20 @@ export default function ReportTab({ company }) {
   };
 
   useEffect(() => {
-    loadData();
-
+    if (!company?.id) return;
+  
+    loadReport({
+      company: company.id,
+      ...serializeReportPeriod({
+        dateFrom: INITIAL_PERIOD.dateFrom,
+        dateTo: INITIAL_PERIOD.dateTo,
+      }),
+    });
+  
     return () => {
       clearReport();
     };
-  }, [company?.id]);
+  }, [company?.id, loadReport, clearReport]);
 
   const handleQuickPeriod = async (type) => {
     const period = getReportPeriod(type);
