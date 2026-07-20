@@ -23,7 +23,7 @@ const getApiError = (error, fallback) => {
   return data || fallback;
 };
 
-export const useClearingDirectoryStore = create((set, get) => ({
+export const useClearingDirectoryStore = create((set) => ({
   people: [],
   companies: [],
 

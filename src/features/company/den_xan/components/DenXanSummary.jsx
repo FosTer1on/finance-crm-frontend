@@ -5,12 +5,6 @@ import { formatUsd } from "../utils/formatCurrency";
 
 const { Text } = Typography;
 
-const getResultLabel = (value, lossLabel, profitLabel) => {
-  const numericValue = Number(value || 0);
-
-  return numericValue < 0 ? profitLabel : lossLabel;
-};
-
 export default function DenXanSummary({ summary }) {
   if (!summary) return null;
 

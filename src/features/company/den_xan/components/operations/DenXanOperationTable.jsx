@@ -7,20 +7,11 @@ import {
   Popconfirm,
   Space,
   Table,
-  Typography,
 } from "antd";
-import {
-  DeleteOutlined,
-  SaveOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, SaveOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
-import {
-  moneyFormatter,
-  moneyParser,
-} from "../../utils/numberInput";
-
-const { Text } = Typography;
+import { moneyFormatter, moneyParser } from "../../utils/numberInput";
 
 const getAmountValue = (value, hideZero) => {
   if (
@@ -75,9 +66,7 @@ export default function DenXanOperationTable({
         title: nameTitle,
         width: 240,
         render: (_, row) => {
-          const value = row.isNew
-            ? draft.name
-            : drafts[row.id]?.name;
+          const value = row.isNew ? draft.name : drafts[row.id]?.name;
 
           return (
             <Input
@@ -100,9 +89,7 @@ export default function DenXanOperationTable({
         title: amountTitle,
         width: 200,
         render: (_, row) => {
-          const rawValue = row.isNew
-            ? draft.amount
-            : drafts[row.id]?.amount;
+          const rawValue = row.isNew ? draft.amount : drafts[row.id]?.amount;
 
           return (
             <Space direction="vertical" size={2} style={{ width: "100%" }}>
@@ -110,14 +97,9 @@ export default function DenXanOperationTable({
                 min={allowNegative ? undefined : 0}
                 style={{ width: "100%" }}
                 placeholder={
-                  allowNegative
-                    ? "Например: 3 000 или -3 000"
-                    : "Введите сумму"
+                  allowNegative ? "Например: 3 000 или -3 000" : "Введите сумму"
                 }
-                value={getAmountValue(
-                  rawValue,
-                  row.isNew && hideZeroInNewRow
-                )}
+                value={getAmountValue(rawValue, row.isNew && hideZeroInNewRow)}
                 formatter={moneyFormatter}
                 parser={moneyParser}
                 onChange={(value) => {
@@ -138,8 +120,7 @@ export default function DenXanOperationTable({
         render: (_, row) => {
           const dateValue = row.isNew
             ? draft.operation_date || draft.expense_date
-            : drafts[row.id]?.operation_date ||
-              drafts[row.id]?.expense_date;
+            : drafts[row.id]?.operation_date || drafts[row.id]?.expense_date;
 
           return (
             <DatePicker
@@ -150,13 +131,12 @@ export default function DenXanOperationTable({
               onChange={(value) => {
                 if (!row.isNew && !canEditDate) return;
 
-                const field = draft.operation_date !== undefined
-                  ? "operation_date"
-                  : "expense_date";
+                const field =
+                  draft.operation_date !== undefined
+                    ? "operation_date"
+                    : "expense_date";
 
-                const nextValue = value
-                  ? value.format("YYYY-MM-DD")
-                  : null;
+                const nextValue = value ? value.format("YYYY-MM-DD") : null;
 
                 if (row.isNew) {
                   onDraftChange(field, nextValue);
@@ -172,9 +152,7 @@ export default function DenXanOperationTable({
         title: commentTitle,
         width: 280,
         render: (_, row) => {
-          const value = row.isNew
-            ? draft.comment
-            : drafts[row.id]?.comment;
+          const value = row.isNew ? draft.comment : drafts[row.id]?.comment;
 
           return (
             <Input

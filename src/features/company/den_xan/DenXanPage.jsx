@@ -1,9 +1,9 @@
-import { Card, Tabs } from "antd";
+import { Tabs } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
+
 import CashExpensesTab from "./tabs/CashExpensesTab";
 import ExpenseTab from "./tabs/ExpenseTab";
-
 import MainTab from "./tabs/MainTab";
 import ReportTab from "./tabs/ReportTab";
 

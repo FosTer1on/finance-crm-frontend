@@ -1,32 +1,18 @@
 import { useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import {
-  Alert,
-  Button,
-  Card,
-  Col,
-  Descriptions,
-  Empty,
-  Row,
-  Space,
-  Spin,
-  Tabs,
-  Typography,
-  Tag,
-} from "antd";
-import { ArrowLeftOutlined, PlusOutlined } from "@ant-design/icons";
+import { Link, useParams } from "react-router-dom";
+import { Alert, Button, Card, Empty, Space, Spin, Tabs } from "antd";
+import { ArrowLeftOutlined } from "@ant-design/icons";
+
 import { useCompanyStore } from "@store/company/companyStore";
-import { formatMoney } from "@utils/formatMoney";
 import { useBankStore } from "@store/bank/bankStore";
+
 import IncomingTab from "@/features/company/tabs/IncomingTab";
-import CompanyAccountsCard from "@/components/company/CompanyAccountsCard";
-import CompanyHeader from "@/components/company/CompanyHeader";
 import OutgoingTab from "@/features/company/tabs/OutgoingTab";
 import ExpenseTab from "@/features/company/tabs/ExpenseTab";
 import DenXanPage from "@/features/company/den_xan/DenXanPage";
-import CompanyBottomTabs from "@/components/company/CompanyBottomTabs";
 
-const { Title, Text } = Typography;
+import CompanyAccountsCard from "@/components/company/CompanyAccountsCard";
+import CompanyHeader from "@/components/company/CompanyHeader";
 
 export default function CompanyPage() {
   const { id } = useParams();
@@ -77,29 +63,27 @@ export default function CompanyPage() {
 
   if (selectedCompany.schema_type === "den_xan") {
     return (
-      <>
-        <Space direction="vertical" size="large" style={{ width: "100%" }}>
-          <Link to="/">
-            <Button icon={<ArrowLeftOutlined />}>Назад к фирмам</Button>
-          </Link>
-  
-          {accountsError && (
-            <Alert
-              type="error"
-              message="Ошибка счетов"
-              description={String(accountsError)}
-              showIcon
-            />
-          )}
-  
-          <CompanyHeader company={selectedCompany} totalBalance={totalBalance} />
-  
-          <DenXanPage
-            company={selectedCompany}
-            onAfterChange={() => loadAccounts(id)}
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <Link to="/">
+          <Button icon={<ArrowLeftOutlined />}>Назад к фирмам</Button>
+        </Link>
+
+        {accountsError && (
+          <Alert
+            type="error"
+            message="Ошибка счетов"
+            description={String(accountsError)}
+            showIcon
           />
-        </Space>
-      </>
+        )}
+
+        <CompanyHeader company={selectedCompany} totalBalance={totalBalance} />
+
+        <DenXanPage
+          company={selectedCompany}
+          onAfterChange={() => loadAccounts(id)}
+        />
+      </Space>
     );
   }
 

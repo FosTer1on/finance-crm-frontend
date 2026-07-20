@@ -1,15 +1,12 @@
-import { useMemo } from "react";
 import { Button, InputNumber, Select, Space, Table } from "antd";
 import {
   EditOutlined,
-  PlusOutlined,
-  SaveOutlined,
   ExclamationCircleOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 
 import { formatMoney } from "@/utils/formatMoney";
 import { moneyFormatter, moneyParser } from "../utils/numberInput";
-import { formatUsd } from "../utils/formatCurrency";
 
 export default function DenXanTable({
   rows,
@@ -29,234 +26,212 @@ export default function DenXanTable({
   onPartnerInfo,
   onCreatePartner,
 }) {
-  const columns = useMemo(
-    () => [
-      {
-        title: "",
-        width: 60,
-        render: (_, row) => (
-          <Button
-            size="small"
-            icon={<PlusOutlined />}
-            onClick={() => onAdd(row)}
-          />
-        ),
-      },
+  const columns = [
+    {
+      title: "",
+      width: 60,
+      render: (_, row) => (
+        <Button
+          size="small"
+          icon={<PlusOutlined />}
+          onClick={() => onAdd(row)}
+        />
+      ),
+    },
 
-      {
-        title: "Дистрибьютор",
-        dataIndex: "distributor_name",
-        width: 180,
-      },
+    {
+      title: "Дистрибьютор",
+      dataIndex: "distributor_name",
+      width: 180,
+    },
 
-      {
-        title: "Сумма прихода",
-        width: 210,
+    {
+      title: "Сумма прихода",
+      width: 210,
 
-        render: (_, row) => (
-          <Space>
-            <InputNumber
-              min={0}
-              style={{ width: 150 }}
-              value={
-                Number(drafts[row.id]?.total_amount) === 0
-                  ? null
-                  : drafts[row.id]?.total_amount
-              }
-              formatter={moneyFormatter}
-              parser={moneyParser}
-              onChange={(value) => updateDraft(row.id, "total_amount", value)}
-            />
-
-            <Button
-              size="small"
-              icon={<EditOutlined />}
-              onClick={() => onIncomingComment(row)}
-            />
-          </Space>
-        ),
-      },
-
-      // {
-      //   title: "Приход, $",
-      //   dataIndex: "incoming_usd",
-      //   width: 140,
-      //   render: formatUsd,
-      // },
-
-      {
-        title: "%",
-        width: 90,
-        render: (_, row) => (
-          <InputNumber
-            min={0}
-            max={100}
-            style={{ width: 70 }}
-            value={drafts[row.id]?.service_percent}
-            onChange={(value) => updateDraft(row.id, "service_percent", value)}
-          />
-        ),
-      },
-
-      {
-        title: "Комиссия 6%",
-        dataIndex: "profit_amount",
-        width: 150,
-        render: formatMoney,
-      },
-
-      {
-        title: "MTG",
-        width: 180,
-
-        render: (_, row) => (
+      render: (_, row) => (
+        <Space>
           <InputNumber
             min={0}
             style={{ width: 150 }}
             value={
-              Number(drafts[row.id]?.mtg_amount) === 0
+              Number(drafts[row.id]?.total_amount) === 0
                 ? null
-                : drafts[row.id]?.mtg_amount
+                : drafts[row.id]?.total_amount
             }
             formatter={moneyFormatter}
             parser={moneyParser}
-            onChange={(value) => updateDraft(row.id, "mtg_amount", value)}
+            onChange={(value) => updateDraft(row.id, "total_amount", value)}
           />
-        ),
-      },
 
-      {
-        title: "Поступило на счет",
-        dataIndex: "amount_to_account",
-        width: 180,
-        render: formatMoney,
-      },
-
-      {
-        title: "",
-        width: 90,
-
-        render: (_, row) => (
           <Button
-            type="primary"
-            // icon={<SaveOutlined />}
-            loading={isSubmitting}
-            onClick={() => onSaveIncoming(row)}
-          >
-            Сохранить
-          </Button>
-        ),
-      },
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => onIncomingComment(row)}
+          />
+        </Space>
+      ),
+    },
 
-      {
-        title: "Сумма вывода на рекламу",
-        width: 210,
+    {
+      title: "%",
+      width: 90,
+      render: (_, row) => (
+        <InputNumber
+          min={0}
+          max={100}
+          style={{ width: 70 }}
+          value={drafts[row.id]?.service_percent}
+          onChange={(value) => updateDraft(row.id, "service_percent", value)}
+        />
+      ),
+    },
 
-        render: (_, row) => (
-          <Space>
-            <InputNumber
-              min={0}
-              style={{ width: 150 }}
-              value={
-                Number(drafts[row.id]?.outgoing_amount) === 0
-                  ? null
-                  : drafts[row.id]?.outgoing_amount
-              }
-              formatter={moneyFormatter}
-              parser={moneyParser}
-              onChange={(value) =>
-                updateDraft(row.id, "outgoing_amount", value)
-              }
-            />
+    {
+      title: "Комиссия 6%",
+      dataIndex: "profit_amount",
+      width: 150,
+      render: formatMoney,
+    },
 
-            <Button
-              size="small"
-              icon={<EditOutlined />}
-              onClick={() => onOutgoingComment(row)}
-            />
-          </Space>
-        ),
-      },
+    {
+      title: "MTG",
+      width: 180,
 
-      // {
-      //   title: "Исход, $",
-      //   dataIndex: "outgoing_usd",
-      //   width: 140,
-      //   render: formatUsd,
-      // },
+      render: (_, row) => (
+        <InputNumber
+          min={0}
+          style={{ width: 150 }}
+          value={
+            Number(drafts[row.id]?.mtg_amount) === 0
+              ? null
+              : drafts[row.id]?.mtg_amount
+          }
+          formatter={moneyFormatter}
+          parser={moneyParser}
+          onChange={(value) => updateDraft(row.id, "mtg_amount", value)}
+        />
+      ),
+    },
 
-      {
-        title: "%",
-        width: 100,
-        render: (_, row) => (
+    {
+      title: "Поступило на счет",
+      dataIndex: "amount_to_account",
+      width: 180,
+      render: formatMoney,
+    },
+
+    {
+      title: "",
+      width: 90,
+
+      render: (_, row) => (
+        <Button
+          type="primary"
+          loading={isSubmitting}
+          onClick={() => onSaveIncoming(row)}
+        >
+          Сохранить
+        </Button>
+      ),
+    },
+
+    {
+      title: "Сумма вывода на рекламу",
+      width: 210,
+
+      render: (_, row) => (
+        <Space>
           <InputNumber
             min={0}
-            max={100}
-            style={{ width: 80 }}
-            value={drafts[row.id]?.outgoing_percent}
-            onChange={(value) => updateDraft(row.id, "outgoing_percent", value)}
+            style={{ width: 150 }}
+            value={
+              Number(drafts[row.id]?.outgoing_amount) === 0
+                ? null
+                : drafts[row.id]?.outgoing_amount
+            }
+            formatter={moneyFormatter}
+            parser={moneyParser}
+            onChange={(value) => updateDraft(row.id, "outgoing_amount", value)}
           />
-        ),
-      },
-      {
-        title: "Кэш от рекламы",
-        dataIndex: "outgoing_after_percent",
-        width: 170,
-        render: formatMoney,
-      },
 
-      {
-        title: "Фирма рекламы",
-        width: 300,
-        render: (_, row) => (
-          <Space>
-            <Button
-              size="small"
-              icon={<ExclamationCircleOutlined />}
-              onClick={() => onPartnerInfo(drafts[row.id]?.outgoing_partner_id)}
-            />
-
-            <Select
-              style={{ width: 190 }}
-              placeholder="Выберите фирму"
-              value={drafts[row.id]?.outgoing_partner_id || undefined}
-              options={partners.map((partner) => ({
-                value: partner.id,
-                label: partner.name,
-              }))}
-              onChange={(value) =>
-                updateDraft(row.id, "outgoing_partner_id", value)
-              }
-            />
-
-            <Button
-              size="small"
-              icon={<EditOutlined />}
-              onClick={onCreatePartner}
-            />
-          </Space>
-        ),
-      },
-
-      {
-        title: "",
-        width: 90,
-
-        render: (_, row) => (
           <Button
-            type="primary"
-            // icon={<SaveOutlined />}
-            loading={isSubmitting}
-            onClick={() => onSaveOutgoing(row)}
-          >
-            Сохранить
-          </Button>
-        ),
-      },
-    ],
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => onOutgoingComment(row)}
+          />
+        </Space>
+      ),
+    },
 
-    [drafts, isSubmitting]
-  );
+    {
+      title: "%",
+      width: 100,
+      render: (_, row) => (
+        <InputNumber
+          min={0}
+          max={100}
+          style={{ width: 80 }}
+          value={drafts[row.id]?.outgoing_percent}
+          onChange={(value) => updateDraft(row.id, "outgoing_percent", value)}
+        />
+      ),
+    },
+    {
+      title: "Кэш от рекламы",
+      dataIndex: "outgoing_after_percent",
+      width: 170,
+      render: formatMoney,
+    },
+
+    {
+      title: "Фирма рекламы",
+      width: 300,
+      render: (_, row) => (
+        <Space>
+          <Button
+            size="small"
+            icon={<ExclamationCircleOutlined />}
+            onClick={() => onPartnerInfo(drafts[row.id]?.outgoing_partner_id)}
+          />
+
+          <Select
+            style={{ width: 190 }}
+            placeholder="Выберите фирму"
+            value={drafts[row.id]?.outgoing_partner_id || undefined}
+            options={partners.map((partner) => ({
+              value: partner.id,
+              label: partner.name,
+            }))}
+            onChange={(value) =>
+              updateDraft(row.id, "outgoing_partner_id", value)
+            }
+          />
+
+          <Button
+            size="small"
+            icon={<EditOutlined />}
+            onClick={onCreatePartner}
+          />
+        </Space>
+      ),
+    },
+
+    {
+      title: "",
+      width: 90,
+
+      render: (_, row) => (
+        <Button
+          type="primary"
+          loading={isSubmitting}
+          onClick={() => onSaveOutgoing(row)}
+        >
+          Сохранить
+        </Button>
+      ),
+    },
+  ];
 
   return (
     <Table
