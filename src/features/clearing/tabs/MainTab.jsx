@@ -28,6 +28,8 @@ const { Text } = Typography;
 export default function MainTab() {
   const [selectedDate, setSelectedDate] = useState(dayjs());
 
+  const dateValue = selectedDate.format("YYYY-MM-DD");
+
   const {
     people,
 
@@ -108,8 +110,6 @@ export default function MainTab() {
     updateDraft,
     updateRowDraft,
   });
-
-  const dateValue = selectedDate.format("YYYY-MM-DD");
 
   useEffect(() => {
     loadPeople();
