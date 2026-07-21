@@ -15,39 +15,14 @@ import ClearingPersonModal from "@/features/clearing/modals/ClearingPersonModal"
 import { useClearingOperations } from "@/features/clearing/hooks/useClearingOperations";
 import { useClearingPeople } from "@/features/clearing/hooks/useClearingPeople";
 
+import {
+  createEmptyDraft,
+  operationToDraft,
+} from "@/features/clearing/utils/draftHelpers";
+
 dayjs.locale("ru");
 
 const { Text } = Typography;
-
-const createEmptyDraft = () => ({
-  sender_person_id: null,
-
-  incoming_amount: null,
-  incoming_percent: null,
-  incoming_usd_rate: null,
-
-  receiver_person_id: null,
-
-  outgoing_percent: null,
-  outgoing_usd_rate: null,
-
-  comment: "",
-});
-
-const operationToDraft = (operation) => ({
-  sender_person_id: operation.sender_person,
-
-  incoming_amount: operation.incoming_amount,
-  incoming_percent: operation.incoming_percent,
-  incoming_usd_rate: operation.incoming_usd_rate,
-
-  receiver_person_id: operation.receiver_person,
-
-  outgoing_percent: operation.outgoing_percent,
-  outgoing_usd_rate: operation.outgoing_usd_rate,
-
-  comment: operation.comment || "",
-});
 
 export default function MainTab() {
   const [selectedDate, setSelectedDate] = useState(dayjs());
@@ -85,6 +60,42 @@ export default function MainTab() {
 
     clearOperations,
   } = useClearingOperationStore();
+
+  const {
+    handleCreateOperation,
+    handleUpdateOperation,
+    handleDeleteOperation,
+  } = useClearingOperations({
+    draft,
+    resolvedDrafts,
+    dateValue,
+
+    createOperation,
+    updateOperation,
+    deleteOperation,
+
+    setDraft,
+    setDrafts,
+
+    createEmptyDraft,
+  });
+
+  const {
+    personModal,
+    emptyPersonForm,
+
+    openCreatePerson,
+    openEditPerson,
+    closePersonModal,
+    changePersonForm,
+    handleSavePerson,
+  } = useClearingPeople({
+    people,
+    createPerson,
+    updatePerson,
+    updateDraft,
+    updateRowDraft,
+  });
 
   const dateValue = selectedDate.format("YYYY-MM-DD");
 
@@ -141,42 +152,6 @@ export default function MainTab() {
       },
     }));
   };
-
-  const {
-    handleCreateOperation,
-    handleUpdateOperation,
-    handleDeleteOperation,
-  } = useClearingOperations({
-    draft,
-    resolvedDrafts,
-    dateValue,
-
-    createOperation,
-    updateOperation,
-    deleteOperation,
-
-    setDraft,
-    setDrafts,
-
-    createEmptyDraft,
-  });
-
-  const {
-    personModal,
-    emptyPersonForm,
-
-    openCreatePerson,
-    openEditPerson,
-    closePersonModal,
-    changePersonForm,
-    handleSavePerson,
-  } = useClearingPeople({
-    people,
-    createPerson,
-    updatePerson,
-    updateDraft,
-    updateRowDraft,
-  });
 
   const pageError = error || directoryError;
 
