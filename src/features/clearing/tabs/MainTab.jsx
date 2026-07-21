@@ -1,13 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  Alert,
-  Card,
-  DatePicker,
-  Space,
-  Spin,
-  Typography,
-  message,
-} from "antd";
+import { Alert, Card, DatePicker, Space, Spin, Typography } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
 
@@ -21,7 +13,7 @@ import ClearingPeopleBalances from "@/features/clearing/components/ClearingPeopl
 import ClearingPersonModal from "@/features/clearing/modals/ClearingPersonModal";
 
 import { useClearingOperations } from "@/features/clearing/hooks/useClearingOperations";
-
+import { useClearingPeople } from "@/features/clearing/hooks/useClearingPeople";
 
 dayjs.locale("ru");
 
@@ -41,13 +33,6 @@ const createEmptyDraft = () => ({
 
   comment: "",
 });
-
-const emptyPersonForm = {
-  id: null,
-  name: "",
-  comment: "",
-  is_active: true,
-};
 
 const operationToDraft = (operation) => ({
   sender_person_id: operation.sender_person,
@@ -69,8 +54,6 @@ export default function MainTab() {
 
   const [draft, setDraft] = useState(createEmptyDraft);
   const [drafts, setDrafts] = useState({});
-
-  const [personModal, setPersonModal] = useState(null);
 
   const {
     people,
@@ -159,8 +142,6 @@ export default function MainTab() {
     }));
   };
 
-
-
   const {
     handleCreateOperation,
     handleUpdateOperation,
@@ -169,94 +150,33 @@ export default function MainTab() {
     draft,
     resolvedDrafts,
     dateValue,
-  
+
     createOperation,
     updateOperation,
     deleteOperation,
-  
+
     setDraft,
     setDrafts,
-  
+
     createEmptyDraft,
   });
 
-  const applyPersonToTarget = (target, personId) => {
-    const field =
-      target.side === "sender" ? "sender_person_id" : "receiver_person_id";
+  const {
+    personModal,
+    emptyPersonForm,
 
-    if (target.row.isNew) {
-      updateDraft(field, personId);
-    } else {
-      updateRowDraft(target.row.id, field, personId);
-    }
-  };
-
-  const openCreatePerson = ({ side, row }) => {
-    setPersonModal({
-      mode: "create",
-      target: {
-        side,
-        row,
-      },
-      form: {
-        ...emptyPersonForm,
-      },
-    });
-  };
-
-  const openEditPerson = ({ personId, side, row }) => {
-    const person = people.find((item) => item.id === personId);
-
-    if (!person) {
-      message.error("Человек не найден");
-      return;
-    }
-
-    setPersonModal({
-      mode: "edit",
-      target: {
-        side,
-        row,
-      },
-      form: {
-        id: person.id,
-        name: person.name || "",
-        comment: person.comment || "",
-        is_active: person.is_active ?? true,
-      },
-    });
-  };
-
-  const handleSavePerson = async () => {
-    const name = personModal?.form?.name?.trim();
-
-    if (!name) {
-      message.error("Введите имя");
-      return;
-    }
-
-    const payload = {
-      name,
-      comment: personModal.form.comment || "",
-      is_active: personModal.form.is_active ?? true,
-    };
-
-    let savedPerson;
-
-    if (personModal.mode === "edit") {
-      savedPerson = await updatePerson(personModal.form.id, payload);
-
-      message.success("Данные человека обновлены");
-    } else {
-      savedPerson = await createPerson(payload);
-
-      message.success("Человек создан");
-    }
-
-    applyPersonToTarget(personModal.target, savedPerson.id);
-
-    setPersonModal(null);
-  };
+    openCreatePerson,
+    openEditPerson,
+    closePersonModal,
+    changePersonForm,
+    handleSavePerson,
+  } = useClearingPeople({
+    people,
+    createPerson,
+    updatePerson,
+    updateDraft,
+    updateRowDraft,
+  });
 
   const pageError = error || directoryError;
 
@@ -331,16 +251,8 @@ export default function MainTab() {
         }
         form={personModal?.form || emptyPersonForm}
         loading={isDirectorySubmitting}
-        onCancel={() => setPersonModal(null)}
-        onChange={(field, value) =>
-          setPersonModal((prev) => ({
-            ...prev,
-            form: {
-              ...prev.form,
-              [field]: value,
-            },
-          }))
-        }
+        onCancel={closePersonModal}
+        onChange={changePersonForm}
         onSave={handleSavePerson}
       />
     </Space>
