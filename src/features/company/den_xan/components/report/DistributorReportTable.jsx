@@ -1,5 +1,5 @@
 import { Card, Table } from "antd";
-import { formatMoney } from "@/utils/formatMoney";
+import { formatMoney } from "@/shared/utils/formatMoney";
 
 const moneyColumn = (title, dataIndex, width = 160) => ({
   title,

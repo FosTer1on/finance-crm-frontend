@@ -8,7 +8,7 @@ import {
 } from "antd";
 import { DeleteOutlined, SaveOutlined } from "@ant-design/icons";
 
-import { formatMoney } from "@/utils/formatMoney";
+import { formatMoney } from "@/shared/utils/formatMoney";
 import {
   moneyFormatter,
   moneyParser,

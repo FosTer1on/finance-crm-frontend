@@ -1,6 +1,6 @@
 import { Card, Col, Empty, Row, Statistic, Tag, Typography } from "antd";
 
-import { formatMoney } from "@/utils/formatMoney";
+import { formatMoney } from "@/shared/utils/formatMoney";
 
 const { Text } = Typography;
 

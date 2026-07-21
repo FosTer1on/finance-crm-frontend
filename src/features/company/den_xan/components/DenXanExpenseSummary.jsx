@@ -1,6 +1,6 @@
 import { Card, Col, Row, Statistic } from "antd";
 
-import { formatMoney } from "@/utils/formatMoney";
+import { formatMoney } from "@/shared/utils/formatMoney";
 
 export default function DenXanExpenseSummary({ summary }) {
   if (!summary) {

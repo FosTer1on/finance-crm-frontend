@@ -1,4 +1,4 @@
-import { formatMoney } from "@utils/formatMoney";
+import { formatMoney } from "@/shared/utils/formatMoney";
 
 export const getIncomingColumns = ({ company, renderStatus }) => {
   const statusColumn = {

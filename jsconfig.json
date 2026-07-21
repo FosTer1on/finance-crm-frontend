@@ -8,10 +8,10 @@
         "@store/*": ["src/store/*"],
         "@components/*": ["src/components/*"],
         "@pages/*": ["src/pages/*"],
-        "@hooks/*": ["src/hooks/*"],
+        "@hooks/*": ["src/shared/hooks/*"],
         "@layouts/*": ["src/layouts/*"],
         "@assets/*": ["src/assets/*"],
-        "@utils/*": ["src/utils/*"],
+        "@utils/*": ["src/shared/utils/*"],
         "@constants/*": ["src/constants/*"]
       }
     },

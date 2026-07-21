@@ -7,7 +7,7 @@ import {
   getReportPeriod,
   REPORT_PERIODS,
   serializeReportPeriod,
-} from "@/utils/reportPeriods";
+} from "@/shared/utils/reportPeriods";
 
 import ReportSummaryCards from "../components/report/ReportSummaryCards";
 import PeopleReportTable from "../components/report/PeopleReportTable";

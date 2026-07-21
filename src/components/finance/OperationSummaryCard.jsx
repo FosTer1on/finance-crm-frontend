@@ -1,5 +1,5 @@
 import { Card, Space, Typography } from "antd";
-import { formatMoney } from "@utils/formatMoney";
+import { formatMoney } from "@/shared/utils/formatMoney";
 
 const { Text } = Typography;
 

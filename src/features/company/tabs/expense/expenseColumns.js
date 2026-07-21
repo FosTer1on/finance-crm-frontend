@@ -1,4 +1,4 @@
-import { formatMoney } from "@utils/formatMoney";
+import { formatMoney } from "@/shared/utils/formatMoney";
 
 export const getExpenseColumns = ({ renderStatus }) => [
   { title: "№", render: (_, __, index) => index + 1 },

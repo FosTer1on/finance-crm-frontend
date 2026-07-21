@@ -1,6 +1,6 @@
 import { Alert, Card, Col, Row, Statistic } from "antd";
 
-import { formatMoney } from "@/utils/formatMoney";
+import { formatMoney } from "@/shared/utils/formatMoney";
 import { formatUsd } from "../utils/formatCurrency";
 
 export default function ClearingSummary({ summary }) {

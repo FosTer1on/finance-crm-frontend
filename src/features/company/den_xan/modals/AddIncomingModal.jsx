@@ -1,5 +1,5 @@
 import { Card, InputNumber, Modal, Space, Typography } from "antd";
-import { formatMoney } from "@/utils/formatMoney";
+import { formatMoney } from "@/shared/utils/formatMoney";
 import { moneyFormatter, moneyParser } from "../utils/numberInput";
 
 const { Text } = Typography;

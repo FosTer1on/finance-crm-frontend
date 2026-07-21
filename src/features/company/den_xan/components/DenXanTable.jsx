@@ -5,7 +5,7 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 
-import { formatMoney } from "@/utils/formatMoney";
+import { formatMoney } from "@/shared/utils/formatMoney";
 import { moneyFormatter, moneyParser } from "../utils/numberInput";
 
 export default function DenXanTable({

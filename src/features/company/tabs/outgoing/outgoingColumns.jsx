@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { formatMoney } from "@utils/formatMoney";
+import { formatMoney } from "@/shared/utils/formatMoney";
 
 export const getOutgoingColumns = ({ renderStatus }) => {
   return [

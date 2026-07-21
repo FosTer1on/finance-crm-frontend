@@ -1,7 +1,7 @@
 import { Card, Empty, Space, Table, Typography } from "antd";
 import dayjs from "dayjs";
 
-import { formatMoney } from "@/utils/formatMoney";
+import { formatMoney } from "@/shared/utils/formatMoney";
 import { formatUsd } from "../../utils/formatCurrency";
 
 const { Text } = Typography;

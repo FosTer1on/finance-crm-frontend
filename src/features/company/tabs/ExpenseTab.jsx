@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import StatusSelect from "@components/finance/StatusSelect";
 import OperationTable from "@components/finance/OperationTable";
 import TransactionCard from "@components/finance/TransactionCard";
-import { formatMoney } from "@utils/formatMoney";
+import { formatMoney } from "@/shared/utils/formatMoney";
 import { useExpenseStore } from "@store/expense/expenseStore";
 import { getExpenseColumns } from "./expense/expenseColumns";
 import { Card, Space, Typography } from "antd";

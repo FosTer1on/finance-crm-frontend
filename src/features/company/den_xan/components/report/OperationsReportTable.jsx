@@ -1,7 +1,7 @@
 import { Card, Table, Tag } from "antd";
 import dayjs from "dayjs";
 
-import { formatMoney } from "@/utils/formatMoney";
+import { formatMoney } from "@/shared/utils/formatMoney";
 
 const moneyColumn = (title, dataIndex, width = 150) => ({
   title,
