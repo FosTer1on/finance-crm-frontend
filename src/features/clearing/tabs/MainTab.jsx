@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Card, DatePicker, Space, Spin, Typography } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
@@ -12,6 +12,7 @@ import ClearingPeopleBalances from "@/features/clearing/components/ClearingPeopl
 
 import ClearingPersonModal from "@/features/clearing/modals/ClearingPersonModal";
 
+import { useClearingDrafts } from "@/features/clearing/hooks/useClearingDrafts";
 import { useClearingOperations } from "@/features/clearing/hooks/useClearingOperations";
 import { useClearingPeople } from "@/features/clearing/hooks/useClearingPeople";
 
@@ -26,9 +27,6 @@ const { Text } = Typography;
 
 export default function MainTab() {
   const [selectedDate, setSelectedDate] = useState(dayjs());
-
-  const [draft, setDraft] = useState(createEmptyDraft);
-  const [drafts, setDrafts] = useState({});
 
   const {
     people,
@@ -60,6 +58,24 @@ export default function MainTab() {
 
     clearOperations,
   } = useClearingOperationStore();
+
+  const {
+    draft,
+    setDraft,
+    
+    setDrafts,
+
+    resolvedDrafts,
+
+    updateDraft,
+    updateRowDraft,
+
+    resetDrafts,
+  } = useClearingDrafts({
+    operations,
+    operationToDraft,
+    createEmptyDraft,
+  });
 
   const {
     handleCreateOperation,
@@ -117,42 +133,6 @@ export default function MainTab() {
     };
   }, [dateValue, loadOperations, clearOperations]);
 
-  const resolvedDrafts = useMemo(
-    () =>
-      Object.fromEntries(
-        operations.map((operation) => [
-          operation.id,
-          {
-            ...operationToDraft(operation),
-            ...drafts[operation.id],
-          },
-        ])
-      ),
-    [operations, drafts]
-  );
-
-  const updateDraft = (field, value) => {
-    setDraft((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const updateRowDraft = (rowId, field, value) => {
-    const operation = operations.find((item) => item.id === rowId);
-
-    if (!operation) return;
-
-    setDrafts((prev) => ({
-      ...prev,
-      [rowId]: {
-        ...operationToDraft(operation),
-        ...prev[rowId],
-        [field]: value,
-      },
-    }));
-  };
-
   const pageError = error || directoryError;
 
   const directoriesLoading = isLoadingPeople;
@@ -184,8 +164,7 @@ export default function MainTab() {
               if (!value) return;
 
               setSelectedDate(value);
-              setDraft(createEmptyDraft());
-              setDrafts({});
+              resetDrafts();
             }}
           />
 
