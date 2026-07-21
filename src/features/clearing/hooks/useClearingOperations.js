@@ -9,19 +9,20 @@ export const useClearingOperations = ({
   draft,
   resolvedDrafts,
   dateValue,
+
   createOperation,
   updateOperation,
   deleteOperation,
-  setDraft,
-  setDrafts,
-  createEmptyDraft,
+
+  resetNewDraft,
+  clearRowDraft,
 }) => {
   const handleCreateOperation = async () => {
     if (!validateOperation(draft)) return;
 
     await createOperation(buildOperationPayload(draft, dateValue));
 
-    setDraft(createEmptyDraft());
+    resetNewDraft();
 
     message.success("Операция создана");
   };
@@ -36,22 +37,17 @@ export const useClearingOperations = ({
 
     if (!validateOperation(rowDraft)) return;
 
-    await updateOperation(
-      row.id,
-      buildOperationPayload(rowDraft, dateValue)
-    );
+    await updateOperation(row.id, buildOperationPayload(rowDraft, dateValue));
 
-    setDrafts((prev) => {
-      const next = { ...prev };
-      delete next[row.id];
-      return next;
-    });
+    clearRowDraft(row.id);
 
     message.success("Операция обновлена");
   };
 
   const handleDeleteOperation = async (row) => {
     await deleteOperation(row.id);
+
+    clearRowDraft(row.id);
 
     message.success("Операция удалена");
   };

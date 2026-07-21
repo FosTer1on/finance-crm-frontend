@@ -6,7 +6,6 @@ export const useClearingDrafts = ({
   createEmptyDraft,
 }) => {
   const [draft, setDraft] = useState(createEmptyDraft);
-
   const [drafts, setDrafts] = useState({});
 
   const resolvedDrafts = useMemo(
@@ -45,6 +44,20 @@ export const useClearingDrafts = ({
     }));
   };
 
+  const resetNewDraft = () => {
+    setDraft(createEmptyDraft());
+  };
+
+  const clearRowDraft = (rowId) => {
+    setDrafts((prev) => {
+      const next = { ...prev };
+
+      delete next[rowId];
+
+      return next;
+    });
+  };
+
   const resetDrafts = () => {
     setDraft(createEmptyDraft());
     setDrafts({});
@@ -52,15 +65,13 @@ export const useClearingDrafts = ({
 
   return {
     draft,
-    setDraft,
-
-    setDrafts,
-
     resolvedDrafts,
 
     updateDraft,
     updateRowDraft,
 
+    resetNewDraft,
+    clearRowDraft,
     resetDrafts,
   };
 };

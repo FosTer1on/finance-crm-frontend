@@ -61,15 +61,13 @@ export default function MainTab() {
 
   const {
     draft,
-    setDraft,
-    
-    setDrafts,
-
     resolvedDrafts,
 
     updateDraft,
     updateRowDraft,
 
+    resetNewDraft,
+    clearRowDraft,
     resetDrafts,
   } = useClearingDrafts({
     operations,
@@ -90,10 +88,8 @@ export default function MainTab() {
     updateOperation,
     deleteOperation,
 
-    setDraft,
-    setDrafts,
-
-    createEmptyDraft,
+    resetNewDraft,
+    clearRowDraft,
   });
 
   const {
