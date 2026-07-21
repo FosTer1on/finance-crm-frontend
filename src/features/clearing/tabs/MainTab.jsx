@@ -20,10 +20,8 @@ import ClearingPeopleBalances from "@/features/clearing/components/ClearingPeopl
 
 import ClearingPersonModal from "@/features/clearing/modals/ClearingPersonModal";
 
-import {
-  buildOperationPayload,
-  validateOperation,
-} from "@/features/clearing/utils/operationHelpers";
+import { useClearingOperations } from "@/features/clearing/hooks/useClearingOperations";
+
 
 dayjs.locale("ru");
 
@@ -163,45 +161,24 @@ export default function MainTab() {
 
 
 
-  const handleCreateOperation = async () => {
-    if (!validateOperation(draft)) return;
-
-    await createOperation(buildOperationPayload(draft, dateValue));
-
-    setDraft(createEmptyDraft());
-
-    message.success("Операция создана");
-  };
-
-  const handleUpdateOperation = async (row) => {
-    const rowDraft = resolvedDrafts[row.id];
+  const {
+    handleCreateOperation,
+    handleUpdateOperation,
+    handleDeleteOperation,
+  } = useClearingOperations({
+    draft,
+    resolvedDrafts,
+    dateValue,
   
-    if (!rowDraft) {
-      message.error("Данные операции не найдены");
-      return;
-    }
+    createOperation,
+    updateOperation,
+    deleteOperation,
   
-    if (!validateOperation(rowDraft)) return;
+    setDraft,
+    setDrafts,
   
-    await updateOperation(
-      row.id,
-      buildOperationPayload(rowDraft, dateValue)
-    );
-  
-    setDrafts((prev) => {
-      const next = { ...prev };
-      delete next[row.id];
-      return next;
-    });
-  
-    message.success("Операция обновлена");
-  };
-
-  const handleDeleteOperation = async (row) => {
-    await deleteOperation(row.id);
-
-    message.success("Операция удалена");
-  };
+    createEmptyDraft,
+  });
 
   const applyPersonToTarget = (target, personId) => {
     const field =
