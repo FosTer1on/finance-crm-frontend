@@ -41,15 +41,15 @@ export default function DenXanSummary({ summary }) {
       uzs: summary.outgoing_total,
     },
     {
-      key: "advertising_commission",
-      title: "Комиссия рекламы",
-      uzs: summary.advertising_commission,
-    },
-    {
       key: "cash_from_ads",
       title: "Кэш от рекламы",
       uzs: summary.cash_from_ads_uzs ?? summary.need_to_receive,
       usd: summary.cash_from_ads_usd,
+    },
+    {
+      key: "advertising_commission",
+      title: "Комиссия рекламы",
+      uzs: summary.advertising_commission,
     },
     {
       key: "loss",
