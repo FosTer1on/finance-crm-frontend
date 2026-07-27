@@ -70,22 +70,32 @@ export const useDenXanStore = create((set, get) => ({
     }));
   },
 
+  applyRowUpdate: ({ row, summary }) => {
+    set((state) => ({
+      rows: state.rows.map((item) =>
+        item.id === row.id ? row : item
+      ),
+      summary: summary || state.summary,
+    }));
+  },
+
   saveIncoming: async (rowId, payload) => {
     set({ isSubmitting: true, error: null });
-
+  
     try {
-      const updatedRow = await saveDenXanIncoming(rowId, payload);
-
+      const result = await saveDenXanIncoming(rowId, payload);
+  
+      get().applyRowUpdate(result);
+  
       set({ isSubmitting: false });
-
-      await get().reloadCurrentDay();
-
-      return updatedRow;
+  
+      return result.row;
     } catch (error) {
       set({
         error: error?.response?.data || "Ошибка сохранения прихода",
         isSubmitting: false,
       });
+  
       throw error;
     }
   },
@@ -94,13 +104,13 @@ export const useDenXanStore = create((set, get) => ({
     set({ isSubmitting: true, error: null });
   
     try {
-      const updatedRow = await addDenXanIncoming(rowId, payload);
+      const result = await addDenXanIncoming(rowId, payload);
+  
+      get().applyRowUpdate(result);
   
       set({ isSubmitting: false });
   
-      await get().reloadCurrentDay();
-  
-      return updatedRow;
+      return result.row;
     } catch (error) {
       set({
         error: error?.response?.data || "Ошибка добавления прихода",
@@ -115,13 +125,13 @@ export const useDenXanStore = create((set, get) => ({
     set({ isSubmitting: true, error: null });
   
     try {
-      const updatedRow = await saveDenXanOutgoing(rowId, payload);
+      const result = await saveDenXanOutgoing(rowId, payload);
+  
+      get().applyRowUpdate(result);
   
       set({ isSubmitting: false });
   
-      await get().reloadCurrentDay();
-  
-      return updatedRow;
+      return result.row;
     } catch (error) {
       set({
         error: error?.response?.data || "Ошибка сохранения исхода",

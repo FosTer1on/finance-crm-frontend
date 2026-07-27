@@ -33,7 +33,7 @@ const rowToDraft = (row, defaultPartnerId = null) => ({
   outgoing_partner_id: row.outgoing_partner || defaultPartnerId,
 });
 
-export default function MainTab({ company, onAfterChange }) {
+export default function MainTab({ company }) {
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [drafts, setDrafts] = useState({});
   const [commentModal, setCommentModal] = useState(null);
@@ -140,7 +140,6 @@ export default function MainTab({ company, onAfterChange }) {
     });
 
     message.success("Приход сохранён");
-    onAfterChange?.();
   };
 
   const handleSaveOutgoing = async (row) => {
@@ -161,7 +160,6 @@ export default function MainTab({ company, onAfterChange }) {
     });
 
     message.success("Исход сохранён");
-    onAfterChange?.();
   };
 
   const handleSaveComment = async () => {
@@ -189,7 +187,6 @@ export default function MainTab({ company, onAfterChange }) {
 
     setAddModal(null);
     message.success("Сумма добавлена");
-    onAfterChange?.();
   };
 
   const handleUpdatePartner = async () => {

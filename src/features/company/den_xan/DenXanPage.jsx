@@ -14,7 +14,7 @@ export default function DenXanPage({ company, onAfterChange }) {
     {
       key: "main",
       label: "Главная",
-      children: <MainTab company={company} onAfterChange={onAfterChange} />,
+      children: <MainTab company={company} />,
     },
     {
       key: "expenses",
