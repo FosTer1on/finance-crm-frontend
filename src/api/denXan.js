@@ -27,27 +27,9 @@ export const addDenXanIncoming = async (rowId, payload) => {
   return data;
 };
 
-export const saveDenXanOutgoing = async (rowId, payload) => {
-  const { data } = await apiClient.patch(
-    `${ENDPOINTS.denXanDaily}${rowId}/save-outgoing/`,
-    payload
-  );
-
-  return data;
-};
-
 export const saveDenXanIncomingComment = async (rowId, payload) => {
   const { data } = await apiClient.patch(
     `${ENDPOINTS.denXanDaily}${rowId}/incoming-comment/`,
-    payload
-  );
-
-  return data;
-};
-
-export const saveDenXanOutgoingComment = async (rowId, payload) => {
-  const { data } = await apiClient.patch(
-    `${ENDPOINTS.denXanDaily}${rowId}/outgoing-comment/`,
     payload
   );
 

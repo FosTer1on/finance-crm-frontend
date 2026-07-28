@@ -3,9 +3,7 @@ import {
   getDenXanDaily,
   saveDenXanIncoming,
   addDenXanIncoming,
-  saveDenXanOutgoing,
   saveDenXanIncomingComment,
-  saveDenXanOutgoingComment,
   saveDenXanRates,
 } from "@api";
 
@@ -121,49 +119,11 @@ export const useDenXanStore = create((set, get) => ({
     }
   },
 
-  saveOutgoing: async (rowId, payload) => {
-    set({ isSubmitting: true, error: null });
-  
-    try {
-      const result = await saveDenXanOutgoing(rowId, payload);
-  
-      get().applyRowUpdate(result);
-  
-      set({ isSubmitting: false });
-  
-      return result.row;
-    } catch (error) {
-      set({
-        error: error?.response?.data || "Ошибка сохранения исхода",
-        isSubmitting: false,
-      });
-  
-      throw error;
-    }
-  },
-
   saveIncomingComment: async (rowId, comment) => {
     set({ isSubmitting: true, error: null });
 
     try {
       const updatedRow = await saveDenXanIncomingComment(rowId, { comment });
-      get().updateRowLocal(updatedRow);
-      set({ isSubmitting: false });
-      return updatedRow;
-    } catch (error) {
-      set({
-        error: error?.response?.data || "Ошибка сохранения комментария",
-        isSubmitting: false,
-      });
-      throw error;
-    }
-  },
-
-  saveOutgoingComment: async (rowId, comment) => {
-    set({ isSubmitting: true, error: null });
-
-    try {
-      const updatedRow = await saveDenXanOutgoingComment(rowId, { comment });
       get().updateRowLocal(updatedRow);
       set({ isSubmitting: false });
       return updatedRow;

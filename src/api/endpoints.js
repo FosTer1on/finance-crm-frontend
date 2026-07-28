@@ -9,6 +9,7 @@ export const ENDPOINTS = {
   adjustments: "/transactions/balance-adjustments/",
   reports: "/transactions/reports/period/",
   denXanDaily: "/transactions/den-xan/daily/",
+  denXanOutgoings: "/transactions/den-xan/outgoings/",
   denXanExpenses: "/transactions/den-xan/expenses/",
   denXanReport: "/transactions/den-xan/report/",
   denXanCash: "/transactions/den-xan/cash/",

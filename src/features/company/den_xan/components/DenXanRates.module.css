@@ -1,0 +1,56 @@
+.rates {
+  display: grid;
+  grid-template-columns: 155px 155px minmax(95px, auto);
+  align-items: end;
+  justify-content: end;
+  gap: 12px;
+  min-width: 0;
+}
+
+.rateField {
+  min-width: 0;
+}
+
+.label {
+  display: block;
+  margin-bottom: 5px;
+  color: #101828;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.input {
+  width: 100%;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  color: #389e0d;
+  white-space: nowrap;
+}
+
+.status :global(.ant-typography) {
+  color: inherit;
+  font-size: 12px;
+}
+
+@media (max-width: 1150px) {
+  .rates {
+    justify-content: start;
+  }
+}
+
+@media (max-width: 650px) {
+  .rates {
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .status {
+    grid-column: 1 / -1;
+  }
+}

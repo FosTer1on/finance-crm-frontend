@@ -9,12 +9,28 @@ import ReportTab from "./tabs/ReportTab";
 
 dayjs.locale("ru");
 
-export default function DenXanPage({ company, onAfterChange }) {
+export default function DenXanPage({
+  company,
+  accounts,
+  totalBalance,
+  activeAccount,
+  activeAccountId,
+  onAfterChange,
+}) {
   const tabItems = [
     {
       key: "main",
       label: "Главная",
-      children: <MainTab company={company} />,
+      children: (
+        <MainTab
+          company={company}
+          accounts={accounts}
+          totalBalance={totalBalance}
+          activeAccount={activeAccount}
+          activeAccountId={activeAccountId}
+          onAfterChange={onAfterChange}
+        />
+      ),
     },
     {
       key: "expenses",

@@ -1,0 +1,234 @@
+.headerCard {
+  border-radius: 14px;
+}
+
+.headerCard :global(.ant-card-body) {
+  padding: 20px;
+}
+
+.topRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.companyBlock {
+  min-width: 0;
+}
+
+.backButton {
+  height: auto;
+  margin: -5px 0 10px -11px;
+  padding-inline: 10px;
+  color: #667085;
+}
+
+.companyTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.companyTitle {
+  margin: 0 !important;
+  font-size: 26px !important;
+  line-height: 1.2 !important;
+}
+
+.schemaTag {
+  margin-inline-end: 0;
+  font-weight: 600;
+}
+
+.companyMeta {
+  margin-top: 8px;
+}
+
+.totalBalance {
+  flex-shrink: 0;
+  min-width: 230px;
+  padding: 14px 18px;
+  background: #f7f9fc;
+  border: 1px solid #edf0f5;
+  border-radius: 12px;
+}
+
+.balanceLabel {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 13px;
+}
+
+.totalBalanceValue {
+  display: block;
+  font-size: 22px;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.accountsSection {
+  padding-top: 18px;
+}
+
+.accountsHeading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.accountsTitle {
+  margin: 0 0 2px !important;
+}
+
+.accountsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.accountButton {
+  width: 100%;
+  min-width: 0;
+  padding: 13px 14px;
+  font: inherit;
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 11px;
+  cursor: pointer;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease,
+    background-color 0.18s ease;
+}
+
+.accountButton:hover {
+  border-color: #91caff;
+  background: #fafcff;
+}
+
+.accountButtonActive {
+  background: #f0f7ff;
+  border-color: #1677ff;
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.08);
+}
+
+.accountTop {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.bankIcon {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-right: 10px;
+  font-size: 16px;
+  color: #1677ff;
+  background: #e6f4ff;
+  border-radius: 9px;
+}
+
+.accountNames {
+  min-width: 0;
+  flex: 1;
+}
+
+.bankName,
+.accountName {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bankName {
+  font-size: 14px;
+}
+
+.accountName {
+  margin-top: 1px;
+  font-size: 12px;
+}
+
+.activeIcon {
+  flex: 0 0 auto;
+  margin-left: 8px;
+  color: #1677ff;
+}
+
+.accountBottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.accountBalanceLabel {
+  display: block;
+  font-size: 11px;
+}
+
+.accountBalance {
+  margin-top: 1px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #101828;
+  white-space: nowrap;
+}
+
+.accountNumber {
+  max-width: 110px;
+  overflow: hidden;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emptyAccounts {
+  grid-column: 1 / -1;
+  padding: 20px;
+  color: #98a2b3;
+  text-align: center;
+  background: #fafafa;
+  border: 1px dashed #d9d9d9;
+  border-radius: 10px;
+}
+
+@media (max-width: 900px) {
+  .topRow {
+    flex-direction: column;
+  }
+
+  .totalBalance {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 650px) {
+  .headerCard :global(.ant-card-body) {
+    padding: 15px;
+  }
+
+  .companyTitle {
+    font-size: 22px !important;
+  }
+
+  .accountsHeading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .accountsGrid {
+    grid-template-columns: 1fr;
+  }
+}

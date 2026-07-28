@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Alert, Button, Card, Empty, Space, Spin, Tabs } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
@@ -16,6 +16,8 @@ import CompanyHeader from "@/components/company/CompanyHeader";
 
 export default function CompanyPage() {
   const { id } = useParams();
+
+  const [activeAccountId, setActiveAccountId] = useState(null);
 
   const {
     selectedCompany,
@@ -42,6 +44,31 @@ export default function CompanyPage() {
     };
   }, [id, loadCompanyById, loadAccounts, clearAccounts]);
 
+  useEffect(() => {
+    const activeAccounts = accounts.filter((account) => account.is_active);
+
+    if (activeAccounts.length === 0) {
+      setActiveAccountId(null);
+      return;
+    }
+
+    const accountStillExists = activeAccounts.some(
+      (account) => Number(account.id) === Number(activeAccountId)
+    );
+
+    if (!accountStillExists) {
+      setActiveAccountId(activeAccounts[0].id);
+    }
+  }, [accounts, activeAccountId]);
+
+  const activeAccount = useMemo(
+    () =>
+      accounts.find(
+        (account) => Number(account.id) === Number(activeAccountId)
+      ) || null,
+    [accounts, activeAccountId]
+  );
+
   if (isCompanyLoading) {
     return <Spin />;
   }
@@ -63,11 +90,7 @@ export default function CompanyPage() {
 
   if (selectedCompany.schema_type === "den_xan") {
     return (
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        <Link to="/">
-          <Button icon={<ArrowLeftOutlined />}>Назад к фирмам</Button>
-        </Link>
-
+      <Space direction="vertical" size="middle" style={{ width: "100%" }}>
         {accountsError && (
           <Alert
             type="error"
@@ -77,10 +100,20 @@ export default function CompanyPage() {
           />
         )}
 
-        <CompanyHeader company={selectedCompany} totalBalance={totalBalance} />
+        <CompanyHeader
+          company={selectedCompany}
+          accounts={accounts}
+          activeAccountId={activeAccountId}
+          onAccountChange={setActiveAccountId}
+          isLoadingAccounts={isAccountsLoading}
+        />
 
         <DenXanPage
           company={selectedCompany}
+          accounts={accounts}
+          totalBalance={totalBalance}
+          activeAccount={activeAccount}
+          activeAccountId={activeAccountId}
           onAfterChange={() => loadAccounts(id)}
         />
       </Space>

@@ -1,0 +1,66 @@
+.form {
+  width: 100%;
+}
+
+.form :global(.ant-form-item-label > label) {
+  color: #101828;
+  font-weight: 600;
+}
+
+.partnerField {
+  margin-bottom: 18px;
+}
+
+.partnerRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px;
+  gap: 8px;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.cashResult {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 12px;
+  background: #f7f9fc;
+  border: 1px solid #e8ebf0;
+  border-radius: 8px;
+}
+
+.cashLabel {
+  color: #101828;
+  font-size: 12px;
+}
+
+.cashValue {
+  color: #101828;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.commissionRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+}
+
+.commissionField {
+  min-width: 0;
+}
+
+.vatField {
+  margin-bottom: 24px;
+}
+
+.vatField :global(.ant-checkbox-wrapper) {
+  color: #101828;
+  font-weight: 600;
+  white-space: nowrap;
+}

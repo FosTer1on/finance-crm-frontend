@@ -1,0 +1,164 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.toolbar {
+  display: grid;
+  grid-template-columns:
+    minmax(190px, 0.8fr)
+    minmax(250px, 1fr)
+    minmax(430px, auto);
+  align-items: center;
+  gap: 20px;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+}
+
+.dateBlock {
+  min-width: 0;
+  text-align: center;
+}
+
+.toolbarLabel {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 18px;
+}
+
+.datePicker {
+  width: 145px;
+}
+
+.balanceBlock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 7px 18px;
+  border-right: 1px solid #f0f0f0;
+  border-left: 1px solid #f0f0f0;
+}
+
+.balanceIcon {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  margin-right: 11px;
+  font-size: 17px;
+  color: #1677ff;
+  background: #e6f4ff;
+  border-radius: 10px;
+}
+
+.balanceContent {
+  min-width: 0;
+}
+
+.balanceContent .toolbarLabel {
+  margin-bottom: 1px;
+}
+
+.balanceValue {
+  display: block;
+  overflow: hidden;
+  font-size: 20px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activeAccountName {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  align-items: stretch;
+  gap: 14px;
+  min-width: 0;
+}
+
+.section {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.sectionHeader{
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.sectionTitle,
+.sectionDescription {
+  color: #101828 !important;
+}
+.sectionDescription{
+  font-size: 20px;
+}
+
+.outgoingSection {
+  margin-top: 14px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.outgoingSection :global(.ant-card-head) {
+  min-height: 58px;
+}
+
+.outgoingSection :global(.ant-table-cell) {
+  color: #101828;
+}
+
+@media (max-width: 1200px) {
+  .toolbar {
+    grid-template-columns: 170px minmax(220px, 1fr);
+  }
+
+  .toolbar > :last-child {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+  }
+}
+
+@media (max-width: 1180px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 750px) {
+  .toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .datePicker {
+    width: 100%;
+  }
+
+  .balanceBlock {
+    justify-content: flex-start;
+    padding-inline: 0;
+    border: 0;
+  }
+
+  .toolbar > :last-child {
+    grid-column: auto;
+  }
+}

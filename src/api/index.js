@@ -12,3 +12,4 @@ export * from "./denXanExpense";
 export * from "./denXanReport";
 export * from "./denXanCash";
 export * from "./clearing";
+export * from "./denXanOutgoings";
