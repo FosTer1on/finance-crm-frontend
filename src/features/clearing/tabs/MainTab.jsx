@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Alert, Card, DatePicker, Space, Spin, Typography } from "antd";
+import { Alert, Card, DatePicker, Flex, Space, Spin, Typography } from "antd";
+import { CalendarOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
 
@@ -21,9 +22,11 @@ import {
   operationToDraft,
 } from "@/features/clearing/utils/draftHelpers";
 
+import styles from "./MainTab.module.css";
+
 dayjs.locale("ru");
 
-const { Text } = Typography;
+const { Title, Text } = Typography;
 
 export default function MainTab() {
   const [selectedDate, setSelectedDate] = useState(dayjs());
@@ -32,15 +35,12 @@ export default function MainTab() {
 
   const {
     people,
-
     isLoadingPeople,
     isSubmitting: isDirectorySubmitting,
     error: directoryError,
-
     loadPeople,
     createPerson,
     updatePerson,
-
     clearDirectories,
   } = useClearingDirectoryStore();
 
@@ -48,26 +48,21 @@ export default function MainTab() {
     operations,
     summary,
     peopleBalances,
-
     isLoading,
     isSubmitting,
     error,
-
     loadOperations,
     createOperation,
     updateOperation,
     deleteOperation,
-
     clearOperations,
   } = useClearingOperationStore();
 
   const {
     draft,
     resolvedDrafts,
-
     updateDraft,
     updateRowDraft,
-
     resetNewDraft,
     clearRowDraft,
     resetDrafts,
@@ -85,11 +80,9 @@ export default function MainTab() {
     draft,
     resolvedDrafts,
     dateValue,
-
     createOperation,
     updateOperation,
     deleteOperation,
-
     resetNewDraft,
     clearRowDraft,
   });
@@ -97,7 +90,6 @@ export default function MainTab() {
   const {
     personModal,
     emptyPersonForm,
-
     openCreatePerson,
     openEditPerson,
     closePersonModal,
@@ -129,12 +121,21 @@ export default function MainTab() {
     };
   }, [dateValue, loadOperations, clearOperations]);
 
-  const pageError = error || directoryError;
+  const handleDateChange = (value) => {
+    if (!value) {
+      return;
+    }
 
-  const directoriesLoading = isLoadingPeople;
+    setSelectedDate(value);
+    resetDrafts();
+  };
+
+  const pageError = error || directoryError;
+  const isInitialLoading =
+    (isLoading || isLoadingPeople) && operations.length === 0;
 
   return (
-    <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+    <div className={styles.page}>
       {pageError && (
         <Alert
           type="error"
@@ -145,50 +146,103 @@ export default function MainTab() {
               : JSON.stringify(pageError)
           }
           showIcon
+          className={styles.alert}
         />
       )}
 
-      <Card size="small">
-        <Space wrap>
-          <Text strong>Дата:</Text>
+      <Card
+        size="small"
+        className={styles.toolbarCard}
+        styles={{
+          body: {
+            padding: 14,
+          },
+        }}
+      >
+        <Flex align="center" justify="space-between" gap={16} wrap="wrap">
+          <div className={styles.dateInfo}>
+            <div className={styles.dateIcon}>
+              <CalendarOutlined />
+            </div>
 
-          <DatePicker
-            value={selectedDate}
-            format="DD.MM.YYYY"
-            allowClear={false}
-            onChange={(value) => {
-              if (!value) return;
+            <div>
+              <Text type="secondary" className={styles.dateLabel}>
+                Рабочая дата
+              </Text>
 
-              setSelectedDate(value);
-              resetDrafts();
-            }}
-          />
+              <Title level={5} className={styles.dateTitle}>
+                {selectedDate.format("D MMMM YYYY")}
+              </Title>
+            </div>
+          </div>
 
-          <Text type="secondary">{selectedDate.format("D MMMM YYYY")}</Text>
-        </Space>
+          <Space size={10} wrap>
+            <Text type="secondary">Выбрать день</Text>
+
+            <DatePicker
+              value={selectedDate}
+              format="DD.MM.YYYY"
+              allowClear={false}
+              onChange={handleDateChange}
+              className={styles.datePicker}
+            />
+          </Space>
+        </Flex>
       </Card>
 
-      {(isLoading || directoriesLoading) && operations.length === 0 ? (
-        <Spin />
+      {isInitialLoading ? (
+        <div className={styles.loader}>
+          <Spin size="large" />
+
+          <Text type="secondary">Загружаем операции...</Text>
+        </div>
       ) : (
-        <Card title={`Операции за ${selectedDate.format("D MMMM")}`}>
-          <ClearingOperationTable
-            operations={operations}
-            draft={draft}
-            drafts={resolvedDrafts}
-            isSubmitting={isSubmitting}
-            onDraftChange={updateDraft}
-            onRowChange={updateRowDraft}
-            onCreate={handleCreateOperation}
-            onUpdate={handleUpdateOperation}
-            onDelete={handleDeleteOperation}
-            onCreatePerson={openCreatePerson}
-            onEditPerson={openEditPerson}
-          />
+        <Card
+          className={styles.workspaceCard}
+          title={
+            <div>
+              <Title level={4} className={styles.workspaceTitle}>
+                Операции за {selectedDate.format("D MMMM")}
+              </Title>
 
-          <ClearingSummary summary={summary} />
+              <Text type="secondary" className={styles.workspaceSubtitle}>
+                Добавление, редактирование и расчёт операций за выбранный день
+              </Text>
+            </div>
+          }
+          styles={{
+            header: {
+              minHeight: 68,
+              padding: "0 20px",
+            },
+            body: {
+              padding: 0,
+            },
+          }}
+        >
+          <div className={styles.tableSection}>
+            <ClearingOperationTable
+              operations={operations}
+              draft={draft}
+              drafts={resolvedDrafts}
+              isSubmitting={isSubmitting}
+              onDraftChange={updateDraft}
+              onRowChange={updateRowDraft}
+              onCreate={handleCreateOperation}
+              onUpdate={handleUpdateOperation}
+              onDelete={handleDeleteOperation}
+              onCreatePerson={openCreatePerson}
+              onEditPerson={openEditPerson}
+            />
+          </div>
 
-          <ClearingPeopleBalances rows={peopleBalances} />
+          <div className={styles.summarySection}>
+            <ClearingSummary summary={summary} />
+          </div>
+
+          <div className={styles.balancesSection}>
+            <ClearingPeopleBalances rows={peopleBalances} />
+          </div>
         </Card>
       )}
 
@@ -205,6 +259,6 @@ export default function MainTab() {
         onChange={changePersonForm}
         onSave={handleSavePerson}
       />
-    </Space>
+    </div>
   );
 }

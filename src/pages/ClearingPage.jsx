@@ -1,10 +1,7 @@
-import {
-  Space,
-  Tabs,
-  Typography,
-} from "antd";
+import { Space, Tabs, Typography } from "antd";
 
 import MainTab from "@/features/clearing/tabs/MainTab";
+import DebtsTab from "@/features/clearing/tabs/DebtsTab";
 import ReportTab from "@/features/clearing/tabs/ReportTab";
 
 const { Title, Text } = Typography;
@@ -17,6 +14,11 @@ export default function ClearingPage() {
       children: <MainTab />,
     },
     {
+      key: "debts",
+      label: "Долги",
+      children: <DebtsTab />,
+    },
+    {
       key: "report",
       label: "Отчёт",
       children: <ReportTab />,
@@ -24,21 +26,14 @@ export default function ClearingPage() {
   ];
 
   return (
-    <Space
-      direction="vertical"
-      size="middle"
-      style={{ width: "100%" }}
-    >
+    <Space direction="vertical" size="middle" style={{ width: "100%" }}>
       <div>
-        <Title
-          level={2}
-          style={{ marginBottom: 4 }}
-        >
+        <Title level={2} style={{ marginBottom: 4 }}>
           Взаиморасчёты
         </Title>
 
         <Text type="secondary">
-          Переводы между фирмами и расчёты по ответственным лицам
+          Переводы между фирмами, расчёты и долгосрочные долги
         </Text>
       </div>
 

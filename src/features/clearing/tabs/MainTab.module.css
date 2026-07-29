@@ -1,0 +1,154 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  gap: 16px;
+}
+
+.alert {
+  border-radius: 12px;
+}
+
+.toolbarCard {
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.dateInfo {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 12px;
+}
+
+.dateIcon {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  font-size: 18px;
+  color: #1677ff;
+  background: #eaf3ff;
+  border-radius: 12px;
+}
+
+.dateLabel {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 12px;
+}
+
+.dateTitle {
+  margin: 0 !important;
+  font-size: 16px !important;
+  line-height: 1.25 !important;
+}
+
+.datePicker {
+  width: 150px;
+}
+
+.loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #e8ecf3;
+  border-radius: 16px;
+}
+
+.workspaceCard {
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.workspaceTitle {
+  margin: 0 !important;
+  font-size: 18px !important;
+  line-height: 1.3 !important;
+}
+
+.workspaceSubtitle {
+  display: block;
+  margin-top: 3px;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.tableSection {
+  min-width: 0;
+  padding: 16px 18px 4px;
+  overflow: hidden;
+}
+
+.summarySection {
+  min-width: 0;
+  padding: 8px 18px 16px;
+}
+
+.balancesSection {
+  min-width: 0;
+  padding: 0 18px 18px;
+}
+
+@media (max-width: 1440px) {
+  .tableSection {
+    padding-inline: 14px;
+  }
+
+  .summarySection,
+  .balancesSection {
+    padding-inline: 14px;
+  }
+}
+
+@media (max-width: 900px) {
+  .page {
+    gap: 12px;
+  }
+
+  .datePicker {
+    width: 140px;
+  }
+
+  .tableSection {
+    padding: 12px 12px 2px;
+  }
+
+  .summarySection {
+    padding: 8px 12px 12px;
+  }
+
+  .balancesSection {
+    padding: 0 12px 12px;
+  }
+}
+
+@media (max-width: 650px) {
+  .toolbarCard :global(.ant-card-body) {
+    padding: 12px !important;
+  }
+
+  .dateIcon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .datePicker {
+    width: 100%;
+  }
+
+  .workspaceTitle {
+    font-size: 16px !important;
+  }
+
+  .workspaceSubtitle {
+    display: none;
+  }
+}

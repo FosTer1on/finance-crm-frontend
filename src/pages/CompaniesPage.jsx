@@ -52,7 +52,14 @@ export default function CompaniesPage() {
           {companies.map((company) => (
             <Col xs={24} sm={12} lg={8} key={company.id}>
               <Link to={`/companies/${company.id}`}>
-                <Card hoverable>
+                <Card
+                  hoverable
+                  style={{
+                    borderRadius: 16,
+                    transition: ".2s",
+                    height: "100%",
+                  }}
+                >
                   <Space direction="vertical" size={6}>
                     <Title level={4} style={{ margin: 0 }}>
                       {company.name}

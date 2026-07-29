@@ -17,4 +17,5 @@ export const ENDPOINTS = {
   clearingCompanies: "/clearing/companies/",
   clearingOperations: "/clearing/operations/",
   clearingReport: "/clearing/report/",
+  clearingDebts: "/clearing/debts/",
 };

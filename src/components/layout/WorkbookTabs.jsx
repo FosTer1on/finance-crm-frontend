@@ -15,16 +15,29 @@ export default function WorkbookTabs({ companies = [], onAddCompany }) {
     <div
       style={{
         position: "fixed",
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 1000,
-        height: 38,
-        padding: "4px 10px",
-        background: "#fff",
-        borderTop: "1px solid #d9d9d9",
+        left: 16,
+        right: 16,
+        bottom: 14,
+
+        height: 48,
+
+        padding: "6px 12px",
+
+        background: "rgba(255,255,255,.9)",
+
+        backdropFilter: "blur(16px)",
+
+        border: "1px solid #e5e7eb",
+
+        borderRadius: 14,
+
+        boxShadow: "0 10px 35px rgba(15,23,42,.12)",
+
         overflowX: "auto",
+
         whiteSpace: "nowrap",
+
+        zIndex: 999,
       }}
     >
       <Space size={4}>
