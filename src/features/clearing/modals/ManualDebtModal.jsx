@@ -72,7 +72,7 @@ export default function ManualDebtModal({
       currency: values.currency,
       debt_date: values.debt_date.format("YYYY-MM-DD"),
       amount: values.amount,
-      usd_rate: values.currency === "UZS" ? values.usd_rate : null,
+      usd_rate: values.usd_rate || null,
       due_date: values.due_date ? values.due_date.format("YYYY-MM-DD") : null,
       comment: values.comment?.trim() || "",
     });
@@ -229,12 +229,13 @@ export default function ManualDebtModal({
             label="Курс USD при создании долга"
             rules={[
               {
-                required: true,
-                message: "Укажите курс USD",
-              },
-              {
                 validator: (_, value) => {
-                  if (Number(value) <= 0) {
+                  if (
+                    value !== null &&
+                    value !== undefined &&
+                    value !== "" &&
+                    Number(value) <= 0
+                  ) {
                     return Promise.reject(
                       new Error("Курс должен быть больше нуля")
                     );
