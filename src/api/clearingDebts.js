@@ -57,3 +57,12 @@ export const createClearingDebtPayment = async (debtId, payload) => {
 
   return data;
 };
+
+export const createClearingDebtGroupPayment = async (payload) => {
+  const { data } = await apiClient.post(
+    `${ENDPOINTS.clearingDebts}group-payment/`,
+    payload
+  );
+
+  return data;
+};

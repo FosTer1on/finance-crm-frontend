@@ -14,3 +14,4 @@ export * from "./denXanCash";
 export * from "./clearing";
 export * from "./denXanOutgoings";
 export * from "./clearingDebts";
+export * from "./clearingDebts";

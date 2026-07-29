@@ -6,6 +6,7 @@ import {
   Input,
   InputNumber,
   Modal,
+  Select,
   Space,
   Typography,
 } from "antd";
@@ -31,14 +32,25 @@ const moneyParser = (value) =>
     .replace(/\s/g, "")
     .replace(",", ".");
 
+const getDebtCurrency = (debt) => debt?.currency || "UZS";
+
+const getDebtAmount = (debt) => Number(debt?.remaining_amount || 0);
+
 export default function DebtPaymentModal({
   open,
   debt,
-  loading,
+  loading = false,
   onCancel,
   onSubmit,
 }) {
   const [form] = Form.useForm();
+
+  const paymentCurrency = Form.useWatch("payment_currency", form);
+
+  const debtCurrency = getDebtCurrency(debt);
+
+  const requiresRate =
+    paymentCurrency && debtCurrency && paymentCurrency !== debtCurrency;
 
   useEffect(() => {
     if (!open || !debt) {
@@ -47,30 +59,44 @@ export default function DebtPaymentModal({
 
     form.setFieldsValue({
       payment_date: dayjs(),
-      amount: Number(debt.remaining_amount || 0),
-      usd_rate: debt.usd_rate ? Number(debt.usd_rate) : null,
+      payment_currency: debtCurrency,
+      payment_amount: getDebtAmount(debt),
+      usd_rate: null,
       comment: "",
     });
-  }, [open, debt, form]);
+  }, [open, debt, debtCurrency, form]);
+
+  useEffect(() => {
+    if (!requiresRate) {
+      form.setFieldValue("usd_rate", null);
+    }
+  }, [requiresRate, form]);
 
   const handleFinish = async (values) => {
     await onSubmit({
       payment_date: values.payment_date.format("YYYY-MM-DD"),
-      amount: values.amount,
-      usd_rate: values.usd_rate || null,
+      payment_currency: values.payment_currency,
+      payment_amount: values.payment_amount,
+      usd_rate: requiresRate ? values.usd_rate : null,
       comment: values.comment?.trim() || "",
     });
 
     form.resetFields();
   };
 
+  const formattedRemaining =
+    debtCurrency === "USD"
+      ? `$${formatMoney(debt?.remaining_amount)}`
+      : `${formatMoney(debt?.remaining_amount)} сум`;
+
   return (
     <Modal
       open={open}
-      title="Погашение долга"
+      title={debt?.group_key ? "Погашение долга за день" : "Погашение долга"}
       onCancel={onCancel}
       footer={null}
       destroyOnHidden
+      width={520}
     >
       {debt && (
         <Space
@@ -81,13 +107,23 @@ export default function DebtPaymentModal({
             marginBottom: 18,
           }}
         >
-          <Text strong>{debt.person_name}</Text>
+          <Text strong>{debt.person_name || "Дневной итог"}</Text>
 
-          <Text type="secondary">
-            Остаток: {formatMoney(debt.remaining_amount)}
-          </Text>
+          <Text type="secondary">Остаток: {formattedRemaining}</Text>
 
-          <Text type="secondary">{debt.company_name || "Без фирмы"}</Text>
+          {debt.debt_date && (
+            <Text type="secondary">
+              Дата долга: {dayjs(debt.debt_date).format("DD.MM.YYYY")}
+            </Text>
+          )}
+
+          {!debt.group_key && (
+            <Text type="secondary">{debt.company_name || "Без фирмы"}</Text>
+          )}
+
+          {debt.debts_count > 1 && (
+            <Text type="secondary">Операций в группе: {debt.debts_count}</Text>
+          )}
         </Space>
       )}
 
@@ -106,8 +142,36 @@ export default function DebtPaymentModal({
         </Form.Item>
 
         <Form.Item
-          name="amount"
-          label="Сумма погашения"
+          name="payment_currency"
+          label="Валюта платежа"
+          rules={[
+            {
+              required: true,
+              message: "Выберите валюту платежа",
+            },
+          ]}
+        >
+          <Select
+            options={[
+              {
+                value: "UZS",
+                label: "UZS — сум",
+              },
+              {
+                value: "USD",
+                label: "USD — доллар",
+              },
+            ]}
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="payment_amount"
+          label={
+            paymentCurrency === "USD"
+              ? "Сумма платежа в USD"
+              : "Сумма платежа в UZS"
+          }
           rules={[
             {
               required: true,
@@ -131,21 +195,43 @@ export default function DebtPaymentModal({
             precision={2}
             formatter={moneyFormatter}
             parser={moneyParser}
-            addonAfter="сум"
+            addonAfter={paymentCurrency === "USD" ? "$" : "сум"}
             style={{ width: "100%" }}
           />
         </Form.Item>
 
-        <Form.Item name="usd_rate" label="Курс USD">
-          <InputNumber
-            min={0}
-            precision={2}
-            formatter={moneyFormatter}
-            parser={moneyParser}
-            addonAfter="сум"
-            style={{ width: "100%" }}
-          />
-        </Form.Item>
+        {requiresRate && (
+          <Form.Item
+            name="usd_rate"
+            label="Курс USD для погашения"
+            rules={[
+              {
+                required: true,
+                message: "Укажите курс USD",
+              },
+              {
+                validator: (_, value) => {
+                  if (Number(value) <= 0) {
+                    return Promise.reject(
+                      new Error("Курс должен быть больше нуля")
+                    );
+                  }
+
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <InputNumber
+              min={0.01}
+              precision={2}
+              formatter={moneyFormatter}
+              parser={moneyParser}
+              addonAfter="сум"
+              style={{ width: "100%" }}
+            />
+          </Form.Item>
+        )}
 
         <Form.Item name="comment" label="Комментарий">
           <TextArea rows={3} placeholder="Комментарий к погашению" />
@@ -157,7 +243,9 @@ export default function DebtPaymentModal({
             justifyContent: "flex-end",
           }}
         >
-          <Button onClick={onCancel}>Отмена</Button>
+          <Button disabled={loading} onClick={onCancel}>
+            Отмена
+          </Button>
 
           <Button type="primary" htmlType="submit" loading={loading}>
             Погасить

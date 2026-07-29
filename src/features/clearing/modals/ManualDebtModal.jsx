@@ -38,6 +38,8 @@ export default function ManualDebtModal({
 }) {
   const [form] = Form.useForm();
 
+  const currency = Form.useWatch("currency", form);
+
   useEffect(() => {
     if (!open) {
       return;
@@ -47,6 +49,7 @@ export default function ManualDebtModal({
       person_id: null,
       company_id: null,
       direction: "OWES_US",
+      currency: "UZS",
       debt_date: dayjs(),
       amount: null,
       usd_rate: null,
@@ -55,14 +58,21 @@ export default function ManualDebtModal({
     });
   }, [open, form]);
 
+  useEffect(() => {
+    if (currency === "USD") {
+      form.setFieldValue("usd_rate", null);
+    }
+  }, [currency, form]);
+
   const handleFinish = async (values) => {
     await onSubmit({
       person_id: values.person_id,
       company_id: values.company_id || null,
       direction: values.direction,
+      currency: values.currency,
       debt_date: values.debt_date.format("YYYY-MM-DD"),
       amount: values.amount,
-      usd_rate: values.usd_rate || null,
+      usd_rate: values.currency === "UZS" ? values.usd_rate : null,
       due_date: values.due_date ? values.due_date.format("YYYY-MM-DD") : null,
       comment: values.comment?.trim() || "",
     });
@@ -138,6 +148,30 @@ export default function ManualDebtModal({
           />
         </Form.Item>
 
+        <Form.Item
+          name="currency"
+          label="Валюта долга"
+          rules={[
+            {
+              required: true,
+              message: "Выберите валюту",
+            },
+          ]}
+        >
+          <Select
+            options={[
+              {
+                value: "UZS",
+                label: "UZS — сум",
+              },
+              {
+                value: "USD",
+                label: "USD — доллар",
+              },
+            ]}
+          />
+        </Form.Item>
+
         <Space size={12} align="start" style={{ width: "100%" }}>
           <Form.Item
             name="debt_date"
@@ -160,7 +194,7 @@ export default function ManualDebtModal({
 
         <Form.Item
           name="amount"
-          label="Сумма долга"
+          label={currency === "USD" ? "Сумма долга в USD" : "Сумма долга в UZS"}
           rules={[
             {
               required: true,
@@ -184,21 +218,43 @@ export default function ManualDebtModal({
             precision={2}
             formatter={moneyFormatter}
             parser={moneyParser}
-            addonAfter="сум"
+            addonAfter={currency === "USD" ? "$" : "сум"}
             style={{ width: "100%" }}
           />
         </Form.Item>
 
-        <Form.Item name="usd_rate" label="Курс USD">
-          <InputNumber
-            min={0}
-            precision={2}
-            formatter={moneyFormatter}
-            parser={moneyParser}
-            addonAfter="сум"
-            style={{ width: "100%" }}
-          />
-        </Form.Item>
+        {currency === "UZS" && (
+          <Form.Item
+            name="usd_rate"
+            label="Курс USD при создании долга"
+            rules={[
+              {
+                required: true,
+                message: "Укажите курс USD",
+              },
+              {
+                validator: (_, value) => {
+                  if (Number(value) <= 0) {
+                    return Promise.reject(
+                      new Error("Курс должен быть больше нуля")
+                    );
+                  }
+
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <InputNumber
+              min={0.01}
+              precision={2}
+              formatter={moneyFormatter}
+              parser={moneyParser}
+              addonAfter="сум"
+              style={{ width: "100%" }}
+            />
+          </Form.Item>
+        )}
 
         <Form.Item name="comment" label="Комментарий">
           <TextArea rows={3} placeholder="Причина или описание долга" />

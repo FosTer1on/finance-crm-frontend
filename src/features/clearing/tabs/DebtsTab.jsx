@@ -26,7 +26,6 @@ import { useClearingDebtStore } from "@/store/clearing/clearingDebtStore";
 import { useClearingDirectoryStore } from "@/store/clearing/clearingDirectoryStore";
 
 import { formatMoney } from "@/shared/utils/formatMoney";
-import { formatUsd } from "@/features/clearing/utils/formatCurrency";
 
 import DebtPaymentModal from "@/features/clearing/modals/DebtPaymentModal";
 import ManualDebtModal from "@/features/clearing/modals/ManualDebtModal";
@@ -48,17 +47,17 @@ const FILTER_OPTIONS = [
   },
 ];
 
-const getDirectionView = (row) => {
-  const direction = String(row?.direction || "").toUpperCase();
+const getDirectionView = (direction) => {
+  const normalizedDirection = String(direction || "").toUpperCase();
 
-  if (direction === "OWES_US") {
+  if (normalizedDirection === "OWES_US") {
     return {
       label: "Нам должны",
       color: "green",
     };
   }
 
-  if (direction === "WE_OWE") {
+  if (normalizedDirection === "WE_OWE") {
     return {
       label: "Мы должны",
       color: "red",
@@ -66,7 +65,7 @@ const getDirectionView = (row) => {
   }
 
   return {
-    label: "Закрыто",
+    label: "Нет долга",
     color: "default",
   };
 };
@@ -85,11 +84,50 @@ const formatDate = (value) => {
   return `${day}.${month}.${year}`;
 };
 
+const formatCurrency = (value, currency) => {
+  const formattedValue = formatMoney(value || 0);
+
+  if (currency === "USD") {
+    return `$${formattedValue}`;
+  }
+
+  return `${formattedValue} сум`;
+};
+
+const CurrencyBalance = ({ value, direction, currency }) => {
+  const numericValue = Number(value || 0);
+  const directionView = getDirectionView(direction);
+
+  if (numericValue === 0) {
+    return <Text type="secondary">—</Text>;
+  }
+
+  return (
+    <Space direction="vertical" size={2}>
+      <Text
+        strong
+        type={
+          directionView.color === "red"
+            ? "danger"
+            : directionView.color === "green"
+            ? "success"
+            : undefined
+        }
+      >
+        {formatCurrency(value, currency)}
+      </Text>
+
+      <Tag color={directionView.color}>{directionView.label}</Tag>
+    </Space>
+  );
+};
+
 export default function DebtsTab() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
 
   const [paymentDebt, setPaymentDebt] = useState(null);
+
   const [manualDebtOpen, setManualDebtOpen] = useState(false);
 
   const {
@@ -105,6 +143,7 @@ export default function DebtsTab() {
     selectPerson,
     createManualDebt,
     createPayment,
+    createGroupPayment,
     clearSelectedPerson,
     clearDebts,
   } = useClearingDebtStore();
@@ -137,18 +176,33 @@ export default function DebtsTab() {
     };
   }, [search, filter, loadDebts, clearSelectedPerson]);
 
-  const handleFilterChange = (value) => {
-    setFilter(value);
-  };
-
   const handlePaymentSubmit = async (payload) => {
     if (!paymentDebt || !selectedPerson) {
       return;
     }
 
-    await createPayment(paymentDebt.id, selectedPerson.person_id, payload);
+    if (paymentDebt.group_key) {
+      await createGroupPayment(selectedPerson.person_id, {
+        person_id: selectedPerson.person_id,
+        debt_date: paymentDebt.debt_date,
+        debt_currency: paymentDebt.currency,
+        ...payload,
+      });
+    } else {
+      await createPayment(paymentDebt.id, selectedPerson.person_id, payload);
+    }
 
     setPaymentDebt(null);
+  };
+
+  const handleManualDebtSubmit = async (payload) => {
+    const personSummary = await createManualDebt(payload);
+
+    setManualDebtOpen(false);
+
+    if (personSummary?.person_id) {
+      await selectPerson(personSummary.person_id);
+    }
   };
 
   const handleReload = async () => {
@@ -162,15 +216,15 @@ export default function DebtsTab() {
     }
   };
 
-  const columns = useMemo(
+  const peopleColumns = useMemo(
     () => [
       {
         title: "Ответственное лицо",
         dataIndex: "person_name",
         key: "person_name",
-        width: 140,
+        width: 180,
         render: (value, row) => (
-          <Space direction="vertical" size={2}>
+          <Space direction="vertical" size={4}>
             <Text strong>{value}</Text>
 
             <Space size={6} wrap>
@@ -190,48 +244,46 @@ export default function DebtsTab() {
         ),
       },
       {
-        title: "Направление",
-        dataIndex: "direction",
-        key: "direction",
-        width: 90,
-        render: (_, row) => {
-          const view = getDirectionView(row);
-
-          return <Tag color={view.color}>{view.label}</Tag>;
-        },
-      },
-      {
-        title: "Баланс",
-        dataIndex: "balance",
-        key: "balance",
-        width: 90,
+        title: "Баланс UZS",
+        key: "balance_uzs",
+        width: 170,
         align: "center",
-        render: (value, row) => {
-          const directionView = getDirectionView(row);
-
-          return (
-            <Text
-              strong
-              type={
-                directionView.color === "red"
-                  ? "danger"
-                  : directionView.color === "green"
-                  ? "success"
-                  : undefined
-              }
-            >
-              {formatMoney(value)}
-            </Text>
-          );
-        },
+        render: (_, row) => (
+          <CurrencyBalance
+            value={row.balance_uzs}
+            direction={row.direction_uzs}
+            currency="UZS"
+          />
+        ),
       },
       {
-        title: "Долгов",
+        title: "Баланс USD",
+        key: "balance_usd",
+        width: 150,
+        align: "center",
+        render: (_, row) => (
+          <CurrencyBalance
+            value={row.balance_usd}
+            direction={row.direction_usd}
+            currency="USD"
+          />
+        ),
+      },
+      {
+        title: "Дней",
         dataIndex: "debts_count",
         key: "debts_count",
-        width: 85,
+        width: 80,
         align: "center",
         render: (value) => <Badge count={value || 0} showZero />,
+      },
+      {
+        title: "Операций",
+        dataIndex: "operations_count",
+        key: "operations_count",
+        width: 90,
+        align: "center",
+        render: (value) => <Badge count={value || 0} showZero color="blue" />,
       },
       {
         title: "Ближайший срок",
@@ -244,34 +296,27 @@ export default function DebtsTab() {
     []
   );
 
-  const detailColumns = useMemo(
+  const childColumns = useMemo(
     () => [
       {
         title: "Фирма",
         key: "company",
-        width: 170,
-        render: (_, row) =>
-          row.company_name || row.company?.name || "Без фирмы",
+        width: 180,
+        render: (_, row) => row.company_name || "Без фирмы",
       },
       {
-        title: "Дата",
-        dataIndex: "debt_date",
-        key: "debt_date",
-        width: 105,
-        render: formatDate,
+        title: "Тип",
+        dataIndex: "source_type",
+        key: "source_type",
+        width: 110,
+        render: (value) => (value === "OPERATION" ? "Операция" : "Ручной долг"),
       },
       {
         title: "Направление",
         key: "direction",
         width: 120,
         render: (_, row) => {
-          const view = getDirectionView({
-            direction: row.direction,
-            signed_balance:
-              row.direction === "receivable"
-                ? row.remaining_amount
-                : -Number(row.remaining_amount || 0),
-          });
+          const view = getDirectionView(row.direction);
 
           return <Tag color={view.color}>{view.label}</Tag>;
         },
@@ -282,7 +327,7 @@ export default function DebtsTab() {
         key: "original_amount",
         width: 150,
         align: "right",
-        render: formatMoney,
+        render: (value, row) => formatCurrency(value, row.currency),
       },
       {
         title: "Остаток",
@@ -290,31 +335,17 @@ export default function DebtsTab() {
         key: "remaining_amount",
         width: 150,
         align: "right",
-        render: (value) => <Text strong>{formatMoney(value)}</Text>,
+        render: (value, row) => (
+          <Text strong>{formatCurrency(value, row.currency)}</Text>
+        ),
       },
       {
         title: "Курс USD",
         dataIndex: "usd_rate",
         key: "usd_rate",
-        width: 115,
+        width: 120,
         align: "right",
-        render: (value) => (value ? formatMoney(value) : "—"),
-      },
-      {
-        title: "Остаток USD",
-        key: "remaining_usd",
-        width: 125,
-        align: "right",
-        render: (_, row) => {
-          const remainingAmount = Number(row.remaining_amount || 0);
-          const usdRate = Number(row.usd_rate || 0);
-
-          if (!usdRate) {
-            return "—";
-          }
-
-          return formatUsd(remainingAmount / usdRate);
-        },
+        render: (value) => (value ? `${formatMoney(value)} сум` : "—"),
       },
       {
         title: "Срок",
@@ -322,6 +353,82 @@ export default function DebtsTab() {
         key: "due_date",
         width: 105,
         render: formatDate,
+      },
+      {
+        title: "Комментарий",
+        dataIndex: "comment",
+        key: "comment",
+        width: 220,
+        ellipsis: true,
+        render: (value) => value || "—",
+      },
+    ],
+    []
+  );
+
+  const groupColumns = useMemo(
+    () => [
+      {
+        title: "Дата",
+        dataIndex: "debt_date",
+        key: "debt_date",
+        width: 110,
+        render: formatDate,
+      },
+      {
+        title: "Валюта",
+        dataIndex: "currency",
+        key: "currency",
+        width: 90,
+        align: "center",
+        render: (value) => (
+          <Tag color={value === "USD" ? "blue" : "gold"}>{value}</Tag>
+        ),
+      },
+      {
+        title: "Итог",
+        key: "direction",
+        width: 130,
+        render: (_, row) => {
+          const view = getDirectionView(row.direction);
+
+          return <Tag color={view.color}>{view.label}</Tag>;
+        },
+      },
+      {
+        title: "Остаток",
+        dataIndex: "remaining_amount",
+        key: "remaining_amount",
+        width: 170,
+        align: "right",
+        render: (value, row) => (
+          <Text strong>{formatCurrency(value, row.currency)}</Text>
+        ),
+      },
+      {
+        title: "Долгов в группе",
+        dataIndex: "debts_count",
+        key: "debts_count",
+        width: 125,
+        align: "center",
+        render: (value) => <Badge count={value || 0} showZero />,
+      },
+      {
+        title: "Ближайший срок",
+        dataIndex: "due_date",
+        key: "due_date",
+        width: 130,
+        render: (_, row) => {
+          if (row.is_overdue) {
+            return <Tag color="error">{formatDate(row.due_date)}</Tag>;
+          }
+
+          if (row.is_due_today) {
+            return <Tag color="warning">Сегодня</Tag>;
+          }
+
+          return formatDate(row.due_date);
+        },
       },
       {
         title: "Действия",
@@ -334,38 +441,21 @@ export default function DebtsTab() {
             type="primary"
             onClick={(event) => {
               event.stopPropagation();
-              setPaymentDebt(row);
+
+              setPaymentDebt({
+                ...row,
+                person_id: selectedPerson?.person_id,
+                person_name: selectedPerson?.person_name,
+              });
             }}
           >
-            Погасить
+            Погасить итог
           </Button>
         ),
       },
-      {
-        title: "Комментарий",
-        dataIndex: "comment",
-        key: "comment",
-        width: 220,
-        ellipsis: true,
-        render: (value) => value || "—",
-      },
     ],
-    [setPaymentDebt]
+    [selectedPerson]
   );
-
-  const selectedDirection = selectedPerson
-    ? getDirectionView(selectedPerson)
-    : null;
-
-  const handleManualDebtSubmit = async (payload) => {
-    const personSummary = await createManualDebt(payload);
-
-    setManualDebtOpen(false);
-
-    if (personSummary?.person_id) {
-      await selectPerson(personSummary.person_id);
-    }
-  };
 
   return (
     <Space direction="vertical" size="middle" style={{ width: "100%" }}>
@@ -397,7 +487,7 @@ export default function DebtsTab() {
             <Segmented
               value={filter}
               options={FILTER_OPTIONS}
-              onChange={handleFilterChange}
+              onChange={setFilter}
             />
           </Col>
 
@@ -424,7 +514,7 @@ export default function DebtsTab() {
       </Card>
 
       <Row gutter={[16, 16]} align="stretch">
-        <Col xs={24} xl={9}>
+        <Col xs={24} xl={10}>
           <Card
             title="Ответственные лица"
             styles={{
@@ -435,13 +525,13 @@ export default function DebtsTab() {
           >
             <Table
               rowKey="person_id"
-              columns={columns}
+              columns={peopleColumns}
               dataSource={debts}
               loading={isLoading}
               pagination={false}
               size="small"
               scroll={{
-                x: 820,
+                x: 900,
                 y: 540,
               }}
               locale={{
@@ -464,23 +554,12 @@ export default function DebtsTab() {
           </Card>
         </Col>
 
-        <Col xs={24} xl={15}>
+        <Col xs={24} xl={14}>
           <Card
             title={
               selectedPerson
                 ? `Долги: ${selectedPerson.person_name}`
                 : "Детализация"
-            }
-            extra={
-              selectedPerson && selectedDirection ? (
-                <Space>
-                  <Tag color={selectedDirection.color}>
-                    {selectedDirection.label}
-                  </Tag>
-
-                  <Text strong>{formatMoney(selectedPerson.balance)}</Text>
-                </Space>
-              ) : null
             }
           >
             {isLoadingPerson ? (
@@ -499,25 +578,83 @@ export default function DebtsTab() {
               <Space
                 direction="vertical"
                 size="middle"
-                style={{ width: "100%" }}
+                style={{
+                  width: "100%",
+                }}
               >
                 <Row gutter={[12, 12]}>
+                  <Col xs={24} md={12}>
+                    <Card size="small">
+                      <Text type="secondary">Итоговый баланс UZS</Text>
+
+                      <Title
+                        level={4}
+                        style={{
+                          margin: "4px 0 8px",
+                        }}
+                      >
+                        {formatCurrency(selectedPerson.balance_uzs, "UZS")}
+                      </Title>
+
+                      <Tag
+                        color={
+                          getDirectionView(selectedPerson.direction_uzs).color
+                        }
+                      >
+                        {getDirectionView(selectedPerson.direction_uzs).label}
+                      </Tag>
+                    </Card>
+                  </Col>
+
+                  <Col xs={24} md={12}>
+                    <Card size="small">
+                      <Text type="secondary">Итоговый баланс USD</Text>
+
+                      <Title
+                        level={4}
+                        style={{
+                          margin: "4px 0 8px",
+                        }}
+                      >
+                        {formatCurrency(selectedPerson.balance_usd, "USD")}
+                      </Title>
+
+                      <Tag
+                        color={
+                          getDirectionView(selectedPerson.direction_usd).color
+                        }
+                      >
+                        {getDirectionView(selectedPerson.direction_usd).label}
+                      </Tag>
+                    </Card>
+                  </Col>
+
                   <Col xs={24} sm={8}>
                     <Card size="small">
-                      <Text type="secondary">Общий остаток</Text>
+                      <Text type="secondary">Дневных итогов</Text>
 
-                      <Title level={4} style={{ margin: "4px 0 0" }}>
-                        {formatMoney(selectedPerson.balance)}
+                      <Title
+                        level={4}
+                        style={{
+                          margin: "4px 0 0",
+                        }}
+                      >
+                        {selectedPerson.debts_count || 0}
                       </Title>
                     </Card>
                   </Col>
 
                   <Col xs={24} sm={8}>
                     <Card size="small">
-                      <Text type="secondary">Открытых долгов</Text>
+                      <Text type="secondary">Исходных долгов</Text>
 
-                      <Title level={4} style={{ margin: "4px 0 0" }}>
-                        {selectedPerson.debts_count || 0}
+                      <Title
+                        level={4}
+                        style={{
+                          margin: "4px 0 0",
+                        }}
+                      >
+                        {selectedPerson.operations_count || 0}
                       </Title>
                     </Card>
                   </Col>
@@ -531,7 +668,9 @@ export default function DebtsTab() {
                         type={
                           selectedPerson.overdue_count ? "danger" : undefined
                         }
-                        style={{ margin: "4px 0 0" }}
+                        style={{
+                          margin: "4px 0 0",
+                        }}
                       >
                         {selectedPerson.overdue_count || 0}
                       </Title>
@@ -540,14 +679,34 @@ export default function DebtsTab() {
                 </Row>
 
                 <Table
-                  rowKey="id"
-                  columns={detailColumns}
+                  rowKey="group_key"
+                  columns={groupColumns}
                   dataSource={selectedPerson.details || []}
                   pagination={false}
                   size="small"
                   scroll={{
-                    x: 1250,
+                    x: 900,
                     y: 390,
+                  }}
+                  expandable={{
+                    expandedRowRender: (group) => (
+                      <Table
+                        rowKey="id"
+                        columns={childColumns}
+                        dataSource={group.children || []}
+                        pagination={false}
+                        size="small"
+                        scroll={{
+                          x: 1100,
+                        }}
+                        locale={{
+                          emptyText: "Нет исходных долгов",
+                        }}
+                      />
+                    ),
+                    rowExpandable: (group) =>
+                      Array.isArray(group.children) &&
+                      group.children.length > 0,
                   }}
                   locale={{
                     emptyText: "Нет открытых долгов",
@@ -558,6 +717,7 @@ export default function DebtsTab() {
           </Card>
         </Col>
       </Row>
+
       <DebtPaymentModal
         open={Boolean(paymentDebt)}
         debt={paymentDebt}
@@ -565,6 +725,7 @@ export default function DebtsTab() {
         onCancel={() => setPaymentDebt(null)}
         onSubmit={handlePaymentSubmit}
       />
+
       <ManualDebtModal
         open={manualDebtOpen}
         people={people}

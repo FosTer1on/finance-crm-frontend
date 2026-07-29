@@ -8,6 +8,7 @@ import {
   createManualClearingDebt,
   updateClearingDebt,
   createClearingDebtPayment,
+  createClearingDebtGroupPayment,
 } from "@api";
 
 const getApiError = (error, fallback) => {
@@ -238,6 +239,44 @@ export const useClearingDebtStore = create((set, get) => ({
     } catch (error) {
       set({
         error: getApiError(error, "Ошибка погашения долга"),
+        isSubmitting: false,
+      });
+
+      throw error;
+    }
+  },
+
+  createGroupPayment: async (personId, payload) => {
+    set({
+      isSubmitting: true,
+      error: null,
+    });
+
+    try {
+      const response = await createClearingDebtGroupPayment(payload);
+
+      set({
+        isSubmitting: false,
+      });
+
+      await get().reloadDebts();
+
+      const personStillExists = get().debts.some(
+        (item) => Number(item.person_id) === Number(personId)
+      );
+
+      if (personStillExists) {
+        await get().loadPersonDebt(personId);
+      } else {
+        set({
+          selectedPerson: null,
+        });
+      }
+
+      return response;
+    } catch (error) {
+      set({
+        error: getApiError(error, "Ошибка группового погашения долга"),
         isSubmitting: false,
       });
 
