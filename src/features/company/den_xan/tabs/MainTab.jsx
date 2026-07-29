@@ -79,7 +79,7 @@ export default function MainTab({
   useEffect(() => {
     setIsInitialLoadFinished(false);
   }, [company?.id]);
-  
+
   useEffect(() => {
     if (!isLoading && day?.id) {
       setIsInitialLoadFinished(true);
@@ -249,7 +249,7 @@ export default function MainTab({
     }
 
     try {
-      await createOutgoing({
+      const payload = {
         day_id: day.id,
         bank_account_id: activeAccount.id,
         partner_id: values.partner_id,
@@ -263,7 +263,11 @@ export default function MainTab({
         amount: values.amount,
         service_percent: values.service_percent ?? "9.00",
         comment: values.comment || "",
-      });
+      };
+
+      console.log("OUTGOING PAYLOAD:", payload);
+
+      await createOutgoing(payload);
 
       await refreshDayData();
 

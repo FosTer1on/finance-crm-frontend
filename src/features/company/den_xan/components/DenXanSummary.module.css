@@ -1,0 +1,241 @@
+.summary {
+  margin-top: 16px;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.title {
+  margin: 0 !important;
+  color: #101828 !important;
+  font-size: 18px !important;
+  font-weight: 650 !important;
+}
+
+.description {
+  display: block;
+  margin-top: 4px;
+  color: #667085 !important;
+  font-size: 13px;
+}
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(240px, 0.7fr);
+  gap: 14px;
+}
+
+.primaryCard {
+  height: 100%;
+  border: 1px solid #e4e7ec;
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.primaryCard :global(.ant-card-body) {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardHeader {
+  min-height: 74px;
+}
+
+.cardLabel {
+  display: block;
+  color: #667085 !important;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.moneyValue {
+  margin-top: 7px;
+}
+
+.uzsValue {
+  color: #101828;
+  font-size: 22px;
+  font-weight: 650;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.uzsValueLarge {
+  font-size: 25px;
+}
+
+.usdValue {
+  display: block;
+  margin-top: 4px;
+  color: #667085 !important;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.divider {
+  height: 1px;
+  margin: 18px 0 12px;
+  background: #eaecf0;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detailRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 34px;
+  padding: 6px 0;
+}
+
+.detailRow + .detailRow {
+  border-top: 1px solid #f2f4f7;
+}
+
+.detailLabel {
+  color: #667085 !important;
+  font-size: 13px;
+}
+
+.detailValue {
+  color: #101828 !important;
+  font-size: 13px;
+  font-weight: 550;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.detailValueStrong {
+  font-weight: 700;
+}
+
+.cashCard {
+  position: relative;
+  overflow: hidden;
+  min-height: 200px;
+}
+
+.cashCard::after {
+  position: absolute;
+  right: -36px;
+  bottom: -52px;
+  width: 150px;
+  height: 150px;
+  border: 24px solid #f2f4f7;
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.cashValue {
+  position: relative;
+  z-index: 1;
+  margin-top: 12px;
+  color: #101828;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.cashDescription {
+  position: relative;
+  z-index: 1;
+  display: block;
+  margin-top: auto;
+  padding-top: 24px;
+  color: #667085 !important;
+  font-size: 13px;
+}
+
+.lossGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.lossCard {
+  height: 100%;
+  border: 1px solid #e4e7ec;
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.totalLossCard {
+  border: 2px solid #fda29b;
+  background: #fffbfa;
+}
+
+.lossValue {
+  margin-top: 9px;
+  color: #101828;
+  font-size: 22px;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.lossUsd {
+  display: block;
+  margin-top: 5px;
+  color: #667085 !important;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.profitValue {
+  color: #027a48 !important;
+}
+
+@media (max-width: 1200px) {
+  .mainGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cashCard {
+    grid-column: 1 / -1;
+    min-height: 150px;
+  }
+
+  .cashDescription {
+    margin-top: 12px;
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .summary {
+    padding: 14px;
+  }
+
+  .mainGrid,
+  .lossGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .cashCard {
+    grid-column: auto;
+  }
+
+  .uzsValue,
+  .uzsValueLarge {
+    font-size: 21px;
+  }
+
+  .cashValue {
+    font-size: 26px;
+  }
+}

@@ -28,21 +28,25 @@ export default function CompanyPage() {
 
   const {
     accounts,
+    allAccounts,
     totalBalance,
     isLoading: isAccountsLoading,
+    isAllAccountsLoading,
     error: accountsError,
     loadAccounts,
+    loadAllAccounts,
     clearAccounts,
   } = useBankStore();
 
   useEffect(() => {
     loadCompanyById(id);
     loadAccounts(id);
+    loadAllAccounts();
 
     return () => {
       clearAccounts();
     };
-  }, [id, loadCompanyById, loadAccounts, clearAccounts]);
+  }, [id, loadCompanyById, loadAccounts, loadAllAccounts, clearAccounts]);
 
   useEffect(() => {
     const activeAccounts = accounts.filter((account) => account.is_active);
@@ -111,10 +115,13 @@ export default function CompanyPage() {
         <DenXanPage
           company={selectedCompany}
           accounts={accounts}
+          allAccounts={allAccounts}
           totalBalance={totalBalance}
           activeAccount={activeAccount}
           activeAccountId={activeAccountId}
-          onAfterChange={() => loadAccounts(id)}
+          onAfterChange={async () => {
+            await Promise.all([loadAccounts(id), loadAllAccounts()]);
+          }}
         />
       </Space>
     );

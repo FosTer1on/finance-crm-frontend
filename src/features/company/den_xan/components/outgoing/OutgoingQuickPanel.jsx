@@ -63,8 +63,33 @@ export default function OutgoingQuickPanel({
       return [];
     }
 
-    return accounts.filter((account) => account.company === targetCompanyId);
+    return accounts.filter(
+      (account) =>
+        Number(account.company) === Number(targetCompanyId) && account.is_active
+    );
   }, [accounts, targetCompanyId]);
+
+  useEffect(() => {
+    if (!targetCompanyId) {
+      form.setFieldValue("target_bank_account_id", null);
+      return;
+    }
+
+    if (targetAccounts.length === 1) {
+      form.setFieldValue("target_bank_account_id", targetAccounts[0].id);
+      return;
+    }
+
+    const currentTargetAccountId = form.getFieldValue("target_bank_account_id");
+
+    const accountStillAvailable = targetAccounts.some(
+      (account) => Number(account.id) === Number(currentTargetAccountId)
+    );
+
+    if (!accountStillAvailable) {
+      form.setFieldValue("target_bank_account_id", null);
+    }
+  }, [form, targetCompanyId, targetAccounts]);
 
   const amountAfterPercent = useMemo(() => {
     const numericAmount = Number(amount || 0);
@@ -72,10 +97,6 @@ export default function OutgoingQuickPanel({
 
     return numericAmount - numericAmount * (numericPercent / 100);
   }, [amount, servicePercent]);
-
-  useEffect(() => {
-    form.setFieldValue("target_bank_account_id", null);
-  }, [form, selectedPartnerId]);
 
   useEffect(() => {
     if (!createdPartnerId) return;
@@ -97,6 +118,11 @@ export default function OutgoingQuickPanel({
   }, [form, selectedPartner]);
 
   const handleFinish = async (values) => {
+    console.log("FORM VALUES:", values);
+    console.log(
+      "FIELD:",
+      form.getFieldValue("target_bank_account_id")
+    );
     await onCreate(values);
 
     form.resetFields(["target_bank_account_id", "amount", "comment"]);
@@ -158,7 +184,13 @@ export default function OutgoingQuickPanel({
         </div>
       </Form.Item>
 
-      {targetCompanyId && (
+      {targetAccounts.length <= 1 && (
+        <Form.Item name="target_bank_account_id" hidden>
+          <input />
+        </Form.Item>
+      )}
+
+      {targetCompanyId && targetAccounts.length > 1 && (
         <Form.Item
           name="target_bank_account_id"
           label="Счёт получателя"
@@ -170,7 +202,7 @@ export default function OutgoingQuickPanel({
           ]}
         >
           <Select
-            placeholder="Выберите счёт"
+            placeholder="Выберите счёт получателя"
             options={targetAccounts.map((account) => ({
               value: account.id,
               label: `${account.bank_name} — ${account.account_name}`,

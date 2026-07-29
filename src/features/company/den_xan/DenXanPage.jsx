@@ -12,6 +12,7 @@ dayjs.locale("ru");
 export default function DenXanPage({
   company,
   accounts,
+  allAccounts,
   totalBalance,
   activeAccount,
   activeAccountId,
@@ -24,7 +25,7 @@ export default function DenXanPage({
       children: (
         <MainTab
           company={company}
-          accounts={accounts}
+          accounts={allAccounts}
           totalBalance={totalBalance}
           activeAccount={activeAccount}
           activeAccountId={activeAccountId}
